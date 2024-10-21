@@ -1,0 +1,8 @@
+<div *ngIf="jsonData">
+  <h3>Campos do Relatório</h3>
+  <ul>
+      <li *ngFor="let field of getFields()">
+          {{ field.name }} ({{ field.type }})
+      </li>
+  </ul>
+</div>
