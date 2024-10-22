@@ -9,18 +9,20 @@ import { MenuBarComponent } from './components/menu-bar/menu-bar.component';
 import { TreeComponent } from './components/tree/tree.component';
 import { TreeModule } from 'primeng/tree';
 import { ReactiveFormsModule } from '@angular/forms';  // Importe isso aqui
-import { GerarRelatorioComponent } from './components/GerarRelatorio/GerarRelatorio.component';
 import { MenubarModule } from 'primeng/menubar';
 import { DialogModule } from 'primeng/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { CalendarModule } from 'primeng/calendar';
+import { GerarRelatorioComponent } from './components/GerarRelatorio/GerarRelatorio.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    RelatorioComponent,  // Declara o RelatorioComponent
-    MenuBarComponent ,
-    TreeComponent,
-    GerarRelatorioComponent
+ RelatorioComponent,
+ GerarRelatorioComponent,
+ MenuBarComponent,
+ TreeComponent,
+ 
         // Declara o MenuBarComponent
   ],
   imports: [
@@ -31,7 +33,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     ReactiveFormsModule,
     MenubarModule,
     DialogModule,
-    BrowserAnimationsModule, // Adicione este módulo
+    BrowserAnimationsModule,
+    CalendarModule // Adicione este módulo
 
   ],
   providers: [],

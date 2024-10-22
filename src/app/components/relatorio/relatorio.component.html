@@ -42,9 +42,10 @@
   </div>
 
   <!-- Diálogo para gerar relatório -->
-  <p-dialog header="Gerar Relatório" [(visible)]="displayModal" [modal]="true" [style]="{ width: '50vw' }">
-    <app-GerarRelatorio [jsonData]="selectedJsonData" (onGenerate)="handleReportGeneration($event)"></app-GerarRelatorio>
+  <p-dialog header="Gerar Relatório" [(visible)]="displayModal" [modal]="true">
+    <app-GerarRelatorio [jsonData]="selectedJsonData"></app-GerarRelatorio>
   </p-dialog>
+  
 </div>
 
 

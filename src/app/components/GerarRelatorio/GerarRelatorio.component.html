@@ -1,8 +1,33 @@
-<div *ngIf="jsonData">
-  <h3>Campos do Relatório</h3>
-  <ul>
-      <li *ngFor="let field of getFields()">
-          {{ field.name }} ({{ field.type }})
-      </li>
-  </ul>
-</div>
+<form [formGroup]="jsonForm" class="p-fluid form-container">
+  <div class="p-grid p-formgrid">
+    <div class="p-col-6" *ngFor="let key of parameterKeys">
+      <div class="p-field p-mb-3">
+        <ng-container *ngIf="key.toLowerCase().includes('data'); else defaultField">
+          <p-calendar 
+            [formControlName]="key" 
+            dateFormat="mm/dd/yy" 
+            [showIcon]="true"
+            [appendTo]="'body'"
+            [placeholder]="getPlaceholder(key)">
+          </p-calendar>
+        </ng-container>
+
+        <ng-template #defaultField>
+          <input 
+            pInputText 
+            [formControlName]="key" 
+            [placeholder]="getPlaceholder(key)">
+        </ng-template>
+      </div>
+    </div>
+  </div>
+
+  <div class="buttons-container">
+    <div class="buttons-group">
+      <button pButton label="Visualizar" icon="pi pi-video" class="button-red"></button>
+      <button pButton label="Salvar" icon="pi pi-save" class="button-red"></button>
+      <button pButton label="Gerar" icon="pi pi-cog" class="button-red"></button>
+      <button pButton label="Compartilhar" icon="pi pi-share-alt" class="button-red"></button>
+    </div>
+  </div>
+</form>

@@ -1,21 +1,18 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { RelatorioService } from 'src/service/relatorio.service';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 
-// Interface que representa um campo individual
-export interface Field {
-  name: string; // Nome do campo
-  type: string; // Tipo do campo
+interface Field {
+  name: string;
+  type: string;
 }
 
-// Interface que representa todos os campos do JSON
-export interface Fields {
-  [key: string]: Field; // A chave é o nome do campo, e o valor é o Field
+interface Parameters {
+  [key: string]: Field;
 }
 
-// Interface que representa a estrutura do JSON completo
-export interface JsonData {
-  fields: Fields; // Contém os campos
+interface JsonData {
+  parameters: Parameters;
+  fields: { [key: string]: Field };
 }
 
 @Component({
@@ -23,39 +20,39 @@ export interface JsonData {
   templateUrl: './GerarRelatorio.component.html',
   styleUrls: ['./GerarRelatorio.component.css']
 })
-export class GerarRelatorioComponent {
-  @Input()
-  jsonData!: JsonData; // Dados JSON passados do componente pai
-  displayModal: boolean = true; // Controla a visibilidade do modal
-  reportForm: FormGroup; // Formulário para os parâmetros do relatório
+export class GerarRelatorioComponent implements OnChanges {
+  @Input() jsonData: JsonData | null = null; 
+  jsonForm: FormGroup;
+  parameterKeys: string[] = []; // Declara a variável parameterKeys
 
-  constructor(private fb: FormBuilder, private relatorioService: RelatorioService) {
-    this.reportForm = this.fb.group({
-      tipoLegislacao: ['', Validators.required],
-      formato: ['', Validators.required],
-      dataPublicacaoInicial: ['', Validators.required],
-      dataPublicacaoFinal: ['', Validators.required],
-    });
+  constructor(private fb: FormBuilder) {
+    this.jsonForm = this.fb.group({});
   }
 
-// Método para extrair os campos do JSON
-getFields() {
-  if (this.jsonData && this.jsonData.fields) {
-      return Object.values(this.jsonData.fields); // Retorna um array de fields
-  } else {
-      console.warn('jsonData ou fields está indefinido');
-      return []; // Ou outro valor padrão
-  }
-}
-
-  generateReport() {
-    if (this.reportForm.valid) {
-      console.log('Gerando relatório com os seguintes parâmetros:', this.reportForm.value);
-      this.displayModal = false; // Fecha o modal após gerar o relatório
-      // Adicione lógica para enviar os dados do formulário ao serviço
-      // this.relatorioService.generateReport(this.reportForm.value).subscribe(...);
-    } else {
-      console.error('Formulário inválido');
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['jsonData'] && this.jsonData) {
+      this.parameterKeys = Object.keys(this.jsonData.fields); // Inicializa os parâmetros
+      this.generateForm(this.jsonData);
     }
+  }
+
+  generateForm(parameters: JsonData) {
+    if (!parameters || !parameters.fields) {
+      console.warn('Os parâmetros ou campos estão indefinidos.');
+      return;
+    }
+
+    const formControls: { [key: string]: FormControl } = {}; 
+
+    Object.keys(parameters.fields).forEach(key => {
+      const field = parameters.fields[key];
+      formControls[key] = new FormControl(null); // Inicializa cada campo com null
+    });
+
+    this.jsonForm = this.fb.group(formControls);
+  }
+
+  getPlaceholder(key: string): string {
+    return key.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
   }
 }

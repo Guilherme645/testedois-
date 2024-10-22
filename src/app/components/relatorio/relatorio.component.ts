@@ -22,7 +22,8 @@ export class RelatorioComponent implements OnInit {
   jsonResult: any = null;
   showJson: boolean = false;
   filesInDirectory: any[] = []; // Arquivos dentro do diretório selecionado
-
+  // Outras propriedades...
+  
   // Controle de upload
   selectedUploadFile: File | null = null;
   uploadError: string | null = null;
@@ -80,12 +81,11 @@ export class RelatorioComponent implements OnInit {
 // Carrega os arquivos dentro de um diretório quando ele for selecionado
 loadFilesForDirectory(directory: string) {
   this.relatorioService.listFilesInDirectory(directory).subscribe({
-    next: (files: any) => {
-      this.filesInDirectory = files; // Armazena os arquivos no diretório selecionado
+    next: (files: any[]) => {
+      this.filesInDirectory = files;
     },
-    error: (error) => {
-      this.errorMessage = 'Erro ao carregar arquivos';
-      console.error('Erro ao carregar arquivos', error);
+    error: (error: HttpErrorResponse) => {
+      console.error('Erro ao carregar arquivos:', error);
     }
   });
 }
@@ -206,8 +206,16 @@ loadFilesForDirectory(directory: string) {
     }
   }
   openReportDialog(file: any) {
-    this.selectedJsonData = file; // Armazena os dados do arquivo
-    this.displayModal = true; // Abre o modal
+    // Chame o serviço para gerar JSON do arquivo selecionado
+    this.relatorioService.generateJson(file.name).subscribe({
+      next: (jsonResponse) => {
+        this.selectedJsonData = jsonResponse; // Armazena os dados JSON
+        this.displayModal = true; // Abre o modal
+      },
+      error: (error: HttpErrorResponse) => {
+        console.error('Erro ao gerar JSON:', error);
+      }
+    });
   }
 
   handleReportGeneration(event: any) {
