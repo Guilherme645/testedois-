@@ -1,5 +1,5 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
+import { Component, OnChanges, Input, SimpleChanges } from '@angular/core';
+import { FormGroup, FormBuilder, FormControl } from '@angular/forms';
 
 interface Field {
   name: string;
@@ -21,9 +21,8 @@ interface JsonData {
   styleUrls: ['./GerarRelatorio.component.css']
 })
 export class GerarRelatorioComponent implements OnChanges {
-  @Input() jsonData: JsonData | null = null; 
+  @Input() jsonData: JsonData | null = null; // Allows jsonData to be null
   jsonForm: FormGroup;
-  parameterKeys: string[] = []; // Declara a variável parameterKeys
 
   constructor(private fb: FormBuilder) {
     this.jsonForm = this.fb.group({});
@@ -31,25 +30,38 @@ export class GerarRelatorioComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['jsonData'] && this.jsonData) {
-      this.parameterKeys = Object.keys(this.jsonData.fields); // Inicializa os parâmetros
       this.generateForm(this.jsonData);
     }
   }
 
-  generateForm(parameters: JsonData) {
-    if (!parameters || !parameters.fields) {
-      console.warn('Os parâmetros ou campos estão indefinidos.');
-      return;
+  generateForm(parameters: JsonData): void {
+    if (!parameters || !parameters.parameters) {
+      console.error('Os parâmetros estão indefinidos.');
+      return; // Exit function if parameters are not defined
     }
 
-    const formControls: { [key: string]: FormControl } = {}; 
+    const paramKeys = Object.keys(parameters.parameters);
+    const formControls: { [key: string]: FormControl } = {};
 
-    Object.keys(parameters.fields).forEach(key => {
-      const field = parameters.fields[key];
-      formControls[key] = new FormControl(null); // Inicializa cada campo com null
+    paramKeys.forEach(key => {
+      const field = parameters.parameters[key];
+
+      if (field?.type) {
+        if (field.type.toLowerCase().includes('timestamp') || field.type.toLowerCase().includes('date')) {
+          formControls[key] = new FormControl(null);
+        } else if (field.type.toLowerCase().includes('integer')) {
+          formControls[key] = new FormControl('');
+        } else {
+          formControls[key] = new FormControl('');
+        }
+      }
     });
 
     this.jsonForm = this.fb.group(formControls);
+  }
+
+  getParameterKeys(parameters: Parameters | undefined): string[] {
+    return parameters ? Object.keys(parameters) : [];
   }
 
   getPlaceholder(key: string): string {

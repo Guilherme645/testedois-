@@ -1,6 +1,6 @@
 <form [formGroup]="jsonForm" class="p-fluid form-container">
   <div class="p-grid p-formgrid">
-    <div class="p-col-6" *ngFor="let key of parameterKeys">
+    <div class="p-col-6" *ngFor="let key of getParameterKeys(jsonData?.parameters)">
       <div class="p-field p-mb-3">
         <ng-container *ngIf="key.toLowerCase().includes('data'); else defaultField">
           <p-calendar 
@@ -16,6 +16,7 @@
           <input 
             pInputText 
             [formControlName]="key" 
+            [type]="jsonData && jsonData.parameters[key] && jsonData.parameters[key].type.includes('Integer') ? 'number' : 'text'" 
             [placeholder]="getPlaceholder(key)">
         </ng-template>
       </div>
