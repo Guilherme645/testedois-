@@ -8,16 +8,16 @@
 .p-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px; /* Ajuste para mais espaço entre os campos */
+  gap: 10px; 
 }
 
 .p-col-6 {
-  flex: 0 0 48%; /* Ajusta a largura das colunas */
+  flex: 0 0 48%; 
   max-width: 48%;
 }
 
 .p-field {
-  margin-bottom: 10px; /* Ajuste para mais espaço entre os campos */
+  margin-bottom: 10px; 
 }
 
 .buttons-container {
@@ -35,7 +35,7 @@
   background-color: #f44336;
   color: white;
   border: none;
-padding-right: 50px;
+  padding-right: 50px;
   font-size: 16px;
   border-radius: 10px;
   cursor: pointer;
@@ -46,44 +46,40 @@ padding-right: 50px;
   background-color: #d32f2f;
 }
 
-/* Estilos para o calendário */
 .calendar-input {
-  width: 100%; /* Faz o calendário ocupar a largura total */
+  width: 100%; 
 }
 
 .p-calendar {
-  z-index: 1000; /* Para garantir que o calendário apareça acima de outros elementos */
+  z-index: 1000; 
 }
 
-/* Estilo do calendário e botões */
 :host ::ng-deep .p-datepicker {
-  border: none; /* Remove a borda padrão */
-  color: rgb(0, 0, 0); /* Cor do texto */
+  border: none; 
+  color: rgb(0, 0, 0); 
 }
 
 :host ::ng-deep .p-button {
-  background-color: #f44336; /* Cor de fundo vermelha para os outros botões */
-  color: white; /* Cor do texto */
+  background-color: #f44336; 
+  color: white; 
 }
 
 :host ::ng-deep .p-button:hover {
-  background-color: #a83028; /* Cor ao passar o mouse */
+  background-color: #a83028; 
 }
 
-/* Media Queries */
 @media (max-width: 800px) {
   .p-calendar {
-    display: none; /* Oculta o calendário */
+    display: none; 
   }
 
-  /* Estilo alternativo ou para mostrar apenas o ícone */
   .calendar-icon {
-    display: block; /* Mostra apenas o ícone do calendário */
+    display: block; 
   }
 }
 
 @media (min-width: 801px) {
   .p-calendar {
-    display: block; /* Mostra o calendário */
+    display: block; 
   }
 }

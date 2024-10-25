@@ -34,11 +34,10 @@ export class RelatorioService {
   }
 
   // Lista os arquivos em um diretório
-  listFilesInDirectory(directory: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/explorer/list`, {
-      params: { directory }
-    })
-    .pipe(catchError(this.handleError));
+  listFilesInDirectory(directory: string): Observable<File[]> {
+    return this.http.get<File[]>(`${this.apiUrl}/explorer/list`, {
+      params: { directory } // Certifique-se de que o backend aceita esse parâmetro
+    });
   }
 
   // Manipulador de erros

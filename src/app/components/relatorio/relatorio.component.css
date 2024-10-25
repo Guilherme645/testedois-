@@ -1,6 +1,6 @@
 .container {
   margin: 20px auto;
-  max-width: 1000px; /* Aumentado para ficar mais próximo do layout desejado */
+  max-width: 1000px; 
   padding: 20px;
   background-color: #fff;
   border-radius: 8px;
@@ -16,31 +16,48 @@ h1{
 }
 
 .row {
-  display: flex; /* Utiliza flexbox para colocar os itens lado a lado */
+  display: flex; 
 }
 
 .table {
-  margin-top: 100px; /* Espaçamento acima da tabela */
+  margin-top: 100px; 
   margin-left: 150px;
-  border-collapse: collapse; /* Remove espaçamento entre as células */
-  width: 100%; /* Largura total da tabela */
+  border-collapse: collapse; 
+  width: 100%; 
 }
 
 .table th, .table td {
-  padding: 10px; /* Espaçamento interno das células */
-  text-align: left; /* Alinha o texto à esquerda */
-  border-bottom: 1px solid #ddd; /* Linha de separação */
+  padding: 10px; 
+  text-align: left; 
+  border-bottom: 1px solid #ddd; 
 }
 
 .btn {
-  margin: 5px 0; /* Espaçamento entre os botões */
+  margin: 5px 0; 
 }
 
 .error-message {
-  color: red; /* Cor das mensagens de erro */
+  color: red; 
 }
 .p-tree {
   margin-bottom: 20px; 
-  
+}
+.file-button {
+  background-color: red; 
+  color: white; 
+  border: none; 
+  width: 100%; 
+  margin-top: 5px; 
+  padding: 10px; 
+  border-radius: 4px; 
+  cursor: pointer; 
+  border-radius: 10px;
 }
 
+.col-md-8 {
+  margin-top: 155px; 
+  background-color: white; 
+  border-radius: 8px;
+  margin-left: 50px; 
+  padding: 20px; 
+}

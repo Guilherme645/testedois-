@@ -14,10 +14,7 @@ export class TreeComponent implements OnInit {
   constructor(private relatorioService: RelatorioService) {}
 
   ngOnInit() {
-    // Supondo que sua API retorne os dados de diretórios e arquivos
-    this.relatorioService.listDirectories().subscribe((data: any) => {
-      this.files = this.transformToTreeData(data);
-    });
+  
   }
 
   // Transformar os dados recebidos da API em formato de árvore

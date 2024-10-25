@@ -14,6 +14,8 @@ import { DialogModule } from 'primeng/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CalendarModule } from 'primeng/calendar';
 import { GerarRelatorioComponent } from './components/GerarRelatorio/GerarRelatorio.component';
+import {CardModule} from 'primeng/card';
+import { InputTextModule } from 'primeng/inputtext';
 
 @NgModule({
   declarations: [
@@ -34,7 +36,10 @@ import { GerarRelatorioComponent } from './components/GerarRelatorio/GerarRelato
     MenubarModule,
     DialogModule,
     BrowserAnimationsModule,
-    CalendarModule // Adicione este módulo
+    CalendarModule,
+    CardModule,
+    InputTextModule,
+
 
   ],
   providers: [],

@@ -1,14 +1,12 @@
 <div class="container">
   <p-menubar [model]="items"></p-menubar>
-
   <input type="file" id="fileInput" (change)="uploadFile($event)" style="display: none;" accept=".zip" />
-
+  
   <div *ngIf="uploadError" class="error-message">
     <p>{{ uploadError }}</p>
   </div>
 
   <div class="row">
-    <!-- Componente de árvore para diretórios -->
     <div class="col-md-4">
       <h1><strong>Relatório</strong></h1>
       <p>Página para criação e atualização de relatórios</p>
@@ -16,36 +14,33 @@
 
       <h3>Diretórios</h3>
       <p-tree 
-        [value]="files" 
-        selectionMode="single" 
-        [(selection)]="selectedFile" 
-        (onNodeSelect)="onNodeSelect($event)"
-        class="w-full">
-      </p-tree>
+      [value]="files" 
+      selectionMode="single" 
+      [(selection)]="selectedFile" 
+      (onNodeSelect)="onNodeSelect($event)"
+      class="w-full">
+    </p-tree>
     </div>
 
-    <!-- Tabela de arquivos -->
     <div class="col-md-8">
-      <table class="table" *ngIf="filesInDirectory.length > 0">
-        <thead>
-          <tr>
-            <th>Nome do Arquivo</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let file of filesInDirectory" (click)="openReportDialog(file)">
-            <td style="cursor: pointer; color: rgb(255, 0, 0); text-decoration: underline;">{{ file.name }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <h3>Arquivos na Pasta: {{ selectedDirectory }}</h3>
+      <div class="p-grid">
+        <div class="p-col-12" *ngFor="let file of filesInDirectory">
+          <button 
+            pButton 
+            label="{{ file.name }}" 
+            class="file-button" 
+            (click)="openReportDialog(file)">
+          </button>
+        </div>
+      </div>
+      <div *ngIf="filesInDirectory.length === 0">
+        <p>Nenhum arquivo encontrado nesta pasta.</p>
+      </div>
     </div>
   </div>
 
-  <!-- Diálogo para gerar relatório -->
   <p-dialog header="Gerar Relatório" [(visible)]="displayModal" [modal]="true">
     <app-GerarRelatorio [jsonData]="selectedJsonData"></app-GerarRelatorio>
   </p-dialog>
-  
 </div>
-
-
