@@ -1,7 +1,7 @@
 <div class="container">
   <p-menubar [model]="items"></p-menubar>
   <input type="file" id="fileInput" (change)="uploadFile($event)" style="display: none;" accept=".zip" />
-  
+
   <div *ngIf="uploadError" class="error-message">
     <p>{{ uploadError }}</p>
   </div>
@@ -13,23 +13,22 @@
       <hr />
 
       <h3>Diretórios</h3>
-      <p-tree 
-      [value]="files" 
-      selectionMode="single" 
-      [(selection)]="selectedFile" 
+      <p-tree
+      [value]="files"
+      selectionMode="single"
+      [(selection)]="selectedFile"
       (onNodeSelect)="onNodeSelect($event)"
       class="w-full">
     </p-tree>
     </div>
 
     <div class="col-md-8">
-      <h3>Arquivos na Pasta: {{ selectedDirectory }}</h3>
       <div class="p-grid">
         <div class="p-col-12" *ngFor="let file of filesInDirectory">
-          <button 
-            pButton 
-            label="{{ file.name }}" 
-            class="file-button" 
+          <button
+            pButton
+            label="{{ file.name }}"
+            class="file-button"
             (click)="openReportDialog(file)">
           </button>
         </div>

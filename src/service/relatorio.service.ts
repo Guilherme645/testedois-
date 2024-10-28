@@ -7,7 +7,7 @@ import { catchError } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class RelatorioService {
-  
+
   private apiUrl = 'http://localhost:8080/api';
 
   constructor(private http: HttpClient) {}
@@ -34,10 +34,12 @@ export class RelatorioService {
   }
 
   // Lista os arquivos em um diretório
-  listFilesInDirectory(directory: string): Observable<File[]> {
-    return this.http.get<File[]>(`${this.apiUrl}/explorer/list`, {
-      params: { directory } // Certifique-se de que o backend aceita esse parâmetro
-    });
+  listFolderContents(path: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/explorer/list`, {
+      params: { path }
+    }).pipe(
+      catchError(this.handleError)
+    );
   }
 
   // Manipulador de erros
@@ -53,8 +55,10 @@ export class RelatorioService {
     return throwError(errorMessage);
   }
 
-  gerarRelatorio(parametros: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/report/generate`, parametros)
-      .pipe(catchError(this.handleError)); // Atualize a URL conforme seu backend
+  gerarRelatorio(directory: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/report/generate-json`, { directoryName: directory })
+      .pipe(
+        catchError(this.handleError)
+      );
   }
 }

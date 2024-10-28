@@ -18,17 +18,17 @@ export class RelatorioComponent implements OnInit {
 
   // Arquivos na pasta selecionada
   files: TreeNode<any>[] = [];
-  selectedFile: TreeNode<any> | TreeNode<any>[] | null = null; 
+  selectedFile: TreeNode<any> | TreeNode<any>[] | null = null;
   jsonResult: any = null;
   showJson: boolean = false;
   filesInDirectory: any[] = []; // Arquivos dentro do diretório selecionado
   // Outras propriedades...
-  
+
   // Controle de upload
   selectedUploadFile: File | null = null;
   uploadError: string | null = null;
   errorMessage: string | null = null;
-  
+
   // Propriedades para o diálogo de geração de relatórios
   displayModal: boolean = false; // Controle do modal
   selectedJsonData: any; // Dados do arquivo selecionado
@@ -63,7 +63,7 @@ export class RelatorioComponent implements OnInit {
 
   // Função para carregar os arquivos em um diretório e transformá-los em TreeNode[]
   loadFilesInDirectory(directory: string) {
-    this.relatorioService.listFilesInDirectory(directory).subscribe({
+    this.relatorioService.listFolderContents(directory).subscribe({
       next: (files: File[]) => {
         this.files = files.map(file => ({
           label: file.name,  // Atribui o nome do arquivo à propriedade 'label'
@@ -80,7 +80,7 @@ export class RelatorioComponent implements OnInit {
   }
 // Carrega os arquivos dentro de um diretório quando ele for selecionado
 loadFilesForDirectory(directory: string) {
-  this.relatorioService.listFilesInDirectory(directory).subscribe({
+  this.relatorioService.listFolderContents(directory).subscribe({
     next: (files: any[]) => {
       this.filesInDirectory = files;
     },
@@ -95,12 +95,12 @@ loadFilesForDirectory(directory: string) {
     const fileUrl = file.url || file.path; // Supondo que o arquivo tem uma URL ou caminho
     window.open(fileUrl, '_blank'); // Abre o arquivo em uma nova aba
   }
-  
+
   // Função chamada ao selecionar um diretório
   onNodeSelect(event: any) {
     const node = event.node;
     this.selectedDirectory = node.label; // Define o diretório selecionado
-    
+
     // Verifica se o diretório selecionado não é null antes de carregar os arquivos
     if (this.selectedDirectory) {
       this.loadFilesForDirectory(this.selectedDirectory); // Carrega os arquivos do diretório
@@ -133,13 +133,13 @@ loadFilesForDirectory(directory: string) {
     }
   }
 
-  
+
   // Carrega a lista de diretórios
   loadDirectories() {
     this.relatorioService.listDirectories().subscribe({
       next: (directories) => {
         this.files = directories.map((dir: string) => ({
-          label: dir, 
+          label: dir,
           expanded: true,
           children: []
         }));
@@ -185,25 +185,17 @@ loadFilesForDirectory(directory: string) {
       alert('Nenhuma pasta selecionada para exclusão.');
     }
   }
-  generateJson(selectedFile: any) {
-    if (selectedFile) {
-      // Aqui, você pode decidir se quer gerar o JSON com base no arquivo ou no diretório.
-      // Exemplo: chamando a API para gerar JSON para o arquivo clicado
-      this.relatorioService.generateJson(selectedFile.name).subscribe({
-        next: (jsonResponse) => {
-          console.log('JSON gerado com sucesso:', jsonResponse);
-          // Aqui você pode armazenar o JSON gerado em uma variável para exibição
-          this.jsonResult = jsonResponse; // Supondo que você tenha uma propriedade para armazenar o JSON
-          this.showJson = true; // Exibe o JSON
-        },
-        error: (error: HttpErrorResponse) => {
-          this.errorMessage = 'Erro ao gerar JSON. Tente novamente.';
-          console.error(error);
-        }
-      });
-    } else {
-      this.errorMessage = 'Nenhum arquivo selecionado.';
-    }
+  generateJson(directory: string): void {
+    this.relatorioService.generateJson(directory).subscribe({
+      next: (jsonResponse: any) => {
+        this.jsonResult = jsonResponse;
+        console.log('JSON gerado com sucesso', jsonResponse);
+      },
+      error: (error) => {
+        const errorMessage = error.error || 'Erro ao gerar JSON';
+        this.uploadError = `Erro ao gerar JSON: ${errorMessage}`;
+      }
+    });
   }
   openReportDialog(file: any) {
     // Chame o serviço para gerar JSON do arquivo selecionado

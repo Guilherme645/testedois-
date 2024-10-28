@@ -24,7 +24,7 @@ import { InputTextModule } from 'primeng/inputtext';
  GerarRelatorioComponent,
  MenuBarComponent,
  TreeComponent,
- 
+
         // Declara o MenuBarComponent
   ],
   imports: [
