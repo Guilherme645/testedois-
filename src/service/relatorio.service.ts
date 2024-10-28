@@ -20,7 +20,14 @@ export class RelatorioService {
     return this.http.post(`${this.apiUrl}/report/upload`, formData, { responseType: 'text' })
       .pipe(catchError(this.handleError));
   }
-
+  getInitialDirectories(): Observable<any[]> {
+    return this.http.get<any[]>('http://localhost:8080/api/explorer/directories');
+  }
+  
+  getDirectoryContents(path: string): Observable<any[]> {
+    const url = `http://localhost:8080/api/explorer/list?path=${path}`;
+    return this.http.get<any[]>(url);
+  }
   // Gera JSON de um diretório específico
   generateJson(directory: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/report/generate-json`, { directoryName: directory })
