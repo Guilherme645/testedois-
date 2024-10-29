@@ -3,27 +3,11 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { RelatorioService } from 'src/service/relatorio.service';
 import { MenuItem, TreeNode } from 'primeng/api';
 
-interface FileItem {
-  name: string;
-  directory: boolean;
-  modifiedDate?: string;
-  size?: string;
-  type?: string;
-}
-
-interface TreeNodeData {
-  label: string;
-  data: FileItem;
-  children: TreeNode[];
-  type: 'file' | 'folder';
-  expandedIcon?: string;
-  collapsedIcon?: string;
-}
-
 @Component({
   selector: 'app-relatorio',
   templateUrl: './relatorio.component.html',
-  styleUrls: ['./relatorio.component.css']
+  styleUrls: ['./relatorio.component.css'],
+  
 })
 export class RelatorioComponent implements OnInit {
   directories: string[] = [];
@@ -50,7 +34,7 @@ export class RelatorioComponent implements OnInit {
   }
   selectFile(file: any, rowIndex: number): void {
     this.selectedRowIndex = rowIndex;
-    this.generateJson(file.data.nome); // Chama a função para gerar o JSON
+    this.generateJson(file.data.nome); 
   }
   initializeMenu() {
     this.items = [
@@ -61,10 +45,10 @@ export class RelatorioComponent implements OnInit {
   }
 
   loadDirectories() {
-    this.relatorioService.getDirectoryContents('') // Chame sem parâmetro ou passe um diretório inicial.
+    this.relatorioService.getDirectoryContents('') 
       .subscribe({
         next: (data) => {
-          this.files = data; // Assegure-se de que `data` está no formato TreeNode[]
+          this.files = data; 
         },
         error: (error) => {
           this.errorMessage = 'Erro ao carregar diretórios';
@@ -89,9 +73,8 @@ export class RelatorioComponent implements OnInit {
   loadFilesForDirectory(directory: string) {
     this.relatorioService.listFolderContents(directory).subscribe({
       next: (files: any[]) => {
-        // Supondo que 'files' seja um array com as pastas e arquivos
-        this.filesInDirectory = files; // Armazena os arquivos na pasta selecionada
-        console.log('Arquivos na pasta selecionada:', this.filesInDirectory); // Verifique se os arquivos estão sendo carregados corretamente
+        this.filesInDirectory = files; 
+        console.log('Arquivos na pasta selecionada:', this.filesInDirectory); 
       },
       error: (error: HttpErrorResponse) => {
         console.error('Erro ao carregar arquivos:', error);
@@ -102,10 +85,10 @@ export class RelatorioComponent implements OnInit {
 
   onNodeSelect(event: any) {
     const node = event.node;
-    this.selectedDirectory = node.label; // Define o diretório selecionado
+    this.selectedDirectory = node.label; 
 
     if (this.selectedDirectory) {
-      this.loadFilesForDirectory(this.selectedDirectory); // Carrega os arquivos do diretório
+      this.loadFilesForDirectory(this.selectedDirectory);
     } else {
       console.error('Nenhum diretório selecionado');
     }

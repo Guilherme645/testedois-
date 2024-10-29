@@ -1,81 +1,54 @@
 .container {
-  margin: 20px auto; /* Centraliza o contêiner */
-  max-width: 1000px; /* Largura máxima */
-  padding: 20px; /* Espaçamento interno */
-  background-color: #fff; /* Cor de fundo */
-  border-radius: 8px; /* Cantos arredondados */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra */
+  margin: 20px auto;
+  max-width: 1000px; 
+  padding: 20px; 
+  background-color: #fff; 
+  border-radius: 8px; 
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.336);
 }
 
 .row {
-  display: flex; /* Flexbox para layout em linha */
+  display: flex; 
 }
 
 .p-tree {
-  margin-bottom: 20px; /* Espaço abaixo da árvore */
-}
-
-.selected-row {
-  background-color: #e0f7fa; /* Cor de fundo para a linha selecionada */
-  color: #00796b; /* Cor do texto da linha selecionada */
+  margin-bottom: 20px; 
 }
 
 .p-table {
-  width: 100%; /* Ocupa toda a largura */
-  margin-top: 20px; /* Espaçamento superior */
+  width: 100%; 
+  margin-top: 20px; 
 }
 
 .p-table thead th {
-  background-color: #f0f0f0; /* Cor de fundo para cabeçalhos */
-  text-align: left; /* Alinhamento à esquerda */
-  padding: 10px; /* Espaçamento interno */
-  border-bottom: 2px solid #ddd; /* Borda inferior para cabeçalhos */
+  background-color: #f0f0f0; 
+  text-align: left; 
+  padding: 10px; 
+  border-bottom: 2px solid #ddd; 
 }
 
 .p-table td {
-  padding: 10px; /* Espaçamento interno das células */
-  border-bottom: 1px solid #ddd; /* Borda inferior */
+  padding: 10px; 
+  border-bottom: 1px solid #ddd; 
 }
 
 .p-table tbody tr:hover {
-  background-color: #f9f9f9; /* Cor de fundo ao passar o mouse */
+  background-color: #f9f9f9; 
 }
 
 .error-message {
-  color: red; /* Cor para mensagens de erro */
+  color: red; 
 }
 
-/* Estilos adicionais para a árvore */
 .p-tree .pi-chevron-right,
 .p-tree .pi-chevron-down {
-  transition: transform 0.3s ease-in-out; /* Transição suave para ícones */
+  transition: transform 0.3s ease-in-out;
 }
 
 .p-tree .pi-chevron-right:hover,
 .p-tree .pi-chevron-down:hover {
-  transform: scale(1.2); /* Efeito de escala ao passar o mouse */
-}
-
-.p-tree-custom {
-  max-height: 500px; /* Limita a altura do componente */
-  overflow-y: auto; /* Adiciona rolagem vertical */
-  border: 1px solid #ddd; /* Borda ao redor */
-  border-radius: 4px; /* Cantos arredondados */
-  background-color: #f9f9f9; /* Cor de fundo leve */
-}
-
-.p-treenode-content {
-  padding: 8px; /* Preenchimento interno dos nós */
-  transition: background-color 0.2s; /* Transição suave para a cor de fundo */
-}
-
-.p-treenode-content:hover {
-  background-color: #e0e0e0; /* Cor ao passar o mouse */
-}
-
-.p-tree .node-content.selected {
-  background-color: red !important; /* Cor para nós selecionados */
-  color: white !important; /* Cor do texto para contraste */
+  transform: scale(1.2); 
+  color: white;
 }
 
 .col-md-8 {
@@ -83,3 +56,33 @@
   margin-left: 20px;
 }
 
+:host ::ng-deep .p-tree .node-content {
+  background-color: red; 
+  color: white; 
+}
+
+:host ::ng-deep .p-treenode-content:hover {
+  background-color: #f54235 !important; 
+  color: white !important;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  background-color: #f9f9f9; 
+  color: #333; 
+}
+
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
+  background-color: #f54235; 
+  color: white;
+  cursor: pointer;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr.selected {
+  background-color: red; 
+  color: white; 
+}
+
+:host ::ng-deep .p-treenode-content.selected {
+  background-color: red !important; 
+  color: white !important; 
+}

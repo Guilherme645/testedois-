@@ -8,23 +8,20 @@
 
   <div class="row">
     <div class="col-md-4">
-
       <p-tree
-      [value]="files"
-      selectionMode="single"
-      [(selection)]="selectedFile"
-      (onNodeSelect)="onNodeSelect($event)"
-      (onNodeExpand)="onNodeExpand($event)"
-      class="w-full p-tree-custom"
-      [style]="{'max-height': '500px', 'overflow-y': 'auto', 'width': '300px'}"> <!-- Ajuste a largura conforme necessário -->
-    </p-tree>
-
-
-    </div>
+          [value]="files"
+          selectionMode="single"
+          [(selection)]="selectedFile"
+          (onNodeSelect)="onNodeSelect($event)"
+          (onNodeExpand)="onNodeExpand($event)"
+          class="w-full p-tree-custom"
+          [style]="{'max-height': '500px', 'overflow-y': 'auto', 'width': '300px'}">
+      </p-tree>
+  </div>
 
     <div class="col-md-8">
       <p *ngIf="filesInDirectory.length === 0">Nenhum arquivo encontrado nesta pasta.</p>
-
+    
       <p-table *ngIf="filesInDirectory.length > 0" [value]="filesInDirectory" class="p-datatable-striped">
         <ng-template pTemplate="header">
           <tr>
@@ -33,10 +30,14 @@
             <th pSortableColumn="tipo">Tipo <p-sortIcon field="tipo"></p-sortIcon></th>
           </tr>
         </ng-template>
-
+    
         <ng-template pTemplate="body" let-file>
           <tr (click)="openReportDialog(file)">
-            <td>{{ file.data.nome }}</td>
+            <td>
+              <i *ngIf="file.data.tipo === 'Pasta de arquivos'" class="pi pi-folder"></i> 
+              <i *ngIf="file.data.tipo !== 'Pasta de arquivos'" class="pi pi-file"></i>
+              {{ file.data.nome }}
+            </td>
             <td>{{ file.data.data_modificacao }}</td>
             <td>{{ file.data.tipo }}</td>
           </tr>

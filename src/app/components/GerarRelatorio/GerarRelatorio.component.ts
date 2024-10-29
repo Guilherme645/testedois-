@@ -21,7 +21,7 @@ interface JsonData {
   styleUrls: ['./GerarRelatorio.component.css']
 })
 export class GerarRelatorioComponent implements OnChanges {
-  @Input() jsonData: JsonData | null = null; // Allows jsonData to be null
+  @Input() jsonData: JsonData | null = null; 
   jsonForm: FormGroup;
 
   constructor(private fb: FormBuilder) {
@@ -37,7 +37,7 @@ export class GerarRelatorioComponent implements OnChanges {
   generateForm(parameters: JsonData): void {
     if (!parameters || !parameters.parameters) {
       console.error('Os parâmetros estão indefinidos.');
-      return; // Exit function if parameters are not defined
+      return; 
     }
 
     const paramKeys = Object.keys(parameters.parameters);
