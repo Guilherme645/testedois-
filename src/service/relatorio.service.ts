@@ -23,10 +23,9 @@ export class RelatorioService {
   getInitialDirectories(): Observable<any[]> {
     return this.http.get<any[]>('http://localhost:8080/api/explorer/directories');
   }
-  
   getDirectoryContents(path: string): Observable<any[]> {
-    const url = `http://localhost:8080/api/explorer/list?path=${path}`;
-    return this.http.get<any[]>(url);
+    return this.http.get<any[]>(`http://localhost:8080/api/explorer/list?path=${path}`)
+      .pipe(catchError(this.handleError));
   }
   // Gera JSON de um diretório específico
   generateJson(directory: string): Observable<any> {

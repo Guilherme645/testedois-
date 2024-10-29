@@ -8,35 +8,40 @@
 
   <div class="row">
     <div class="col-md-4">
-   
+
       <p-tree
       [value]="files"
       selectionMode="single"
       [(selection)]="selectedFile"
       (onNodeSelect)="onNodeSelect($event)"
-      (onNodeExpand)="onNodeExpand($event)" 
+      (onNodeExpand)="onNodeExpand($event)"
       class="w-full p-tree-custom"
-      [style]="{'max-height': '500px', 'overflow-y': 'auto'}">
+      [style]="{'max-height': '500px', 'overflow-y': 'auto', 'width': '300px'}"> <!-- Ajuste a largura conforme necessário -->
     </p-tree>
-    
+
+
     </div>
 
     <div class="col-md-8">
-      <div class="directory-list">
-        <ul class="file-list">
-          <li *ngFor="let file of filesInDirectory" (click)="openReportDialog(file)" class="file-item">
-            <i class="pi pi-folder" style="margin-right: 8px;"></i> 
-            {{ file.name }}
-            <span class="file-date">{{ file.modifiedDate }}</span>
-            <span class="file-type">{{ file.type }}</span> 
-            <span class="file-size">{{ file.size }}</span> 
-          </li>
-        </ul>
-      </div>
-    
-      <div *ngIf="filesInDirectory.length === 0">
-        <p>Nenhum arquivo encontrado nesta pasta.</p>
-      </div>
+      <p *ngIf="filesInDirectory.length === 0">Nenhum arquivo encontrado nesta pasta.</p>
+
+      <p-table *ngIf="filesInDirectory.length > 0" [value]="filesInDirectory" class="p-datatable-striped">
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="nome">Nome <p-sortIcon field="nome"></p-sortIcon></th>
+            <th pSortableColumn="data_modificacao">Data de Modificação <p-sortIcon field="data_modificacao"></p-sortIcon></th>
+            <th pSortableColumn="tipo">Tipo <p-sortIcon field="tipo"></p-sortIcon></th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-file>
+          <tr (click)="openReportDialog(file)">
+            <td>{{ file.data.nome }}</td>
+            <td>{{ file.data.data_modificacao }}</td>
+            <td>{{ file.data.tipo }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
     </div>
 
   <p-dialog header="Gerar Relatório" [(visible)]="displayModal" [modal]="true">

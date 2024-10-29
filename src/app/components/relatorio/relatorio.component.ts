@@ -40,6 +40,7 @@ export class RelatorioComponent implements OnInit {
   errorMessage: string | null = null;
   displayModal: boolean = false;
   selectedJsonData: any;
+  selectedRowIndex: number | null = null;
 
   constructor(private relatorioService: RelatorioService) {}
 
@@ -47,7 +48,10 @@ export class RelatorioComponent implements OnInit {
     this.initializeMenu();
     this.loadDirectories();
   }
-
+  selectFile(file: any, rowIndex: number): void {
+    this.selectedRowIndex = rowIndex;
+    this.generateJson(file.data.nome); // Chama a função para gerar o JSON
+  }
   initializeMenu() {
     this.items = [
       { label: 'Nova Pasta', icon: 'pi pi-plus', command: () => this.createNewFolder() },
@@ -57,16 +61,18 @@ export class RelatorioComponent implements OnInit {
   }
 
   loadDirectories() {
-    this.relatorioService.listDirectories().subscribe({
-      next: (directories) => {
-        this.files = directories.map((dir: string) => ({ label: dir, expanded: false, children: [] }));
-      },
-      error: (error) => {
-        this.errorMessage = 'Erro ao carregar diretórios';
-        console.error('Erro ao carregar diretórios', error);
-      }
-    });
+    this.relatorioService.getDirectoryContents('') // Chame sem parâmetro ou passe um diretório inicial.
+      .subscribe({
+        next: (data) => {
+          this.files = data; // Assegure-se de que `data` está no formato TreeNode[]
+        },
+        error: (error) => {
+          this.errorMessage = 'Erro ao carregar diretórios';
+          console.error('Erro ao carregar diretórios', error);
+        }
+      });
   }
+
 
   loadFilesInDirectory(directory: string) {
     this.relatorioService.listFolderContents(directory).subscribe({
@@ -83,7 +89,9 @@ export class RelatorioComponent implements OnInit {
   loadFilesForDirectory(directory: string) {
     this.relatorioService.listFolderContents(directory).subscribe({
       next: (files: any[]) => {
-        this.filesInDirectory = files;
+        // Supondo que 'files' seja um array com as pastas e arquivos
+        this.filesInDirectory = files; // Armazena os arquivos na pasta selecionada
+        console.log('Arquivos na pasta selecionada:', this.filesInDirectory); // Verifique se os arquivos estão sendo carregados corretamente
       },
       error: (error: HttpErrorResponse) => {
         console.error('Erro ao carregar arquivos:', error);
@@ -91,11 +99,13 @@ export class RelatorioComponent implements OnInit {
     });
   }
 
+
   onNodeSelect(event: any) {
     const node = event.node;
-    this.selectedDirectory = node.label;
+    this.selectedDirectory = node.label; // Define o diretório selecionado
+
     if (this.selectedDirectory) {
-      this.loadFilesForDirectory(this.selectedDirectory);
+      this.loadFilesForDirectory(this.selectedDirectory); // Carrega os arquivos do diretório
     } else {
       console.error('Nenhum diretório selecionado');
     }

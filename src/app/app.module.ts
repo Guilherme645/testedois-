@@ -16,6 +16,7 @@ import { CalendarModule } from 'primeng/calendar';
 import { GerarRelatorioComponent } from './components/GerarRelatorio/GerarRelatorio.component';
 import {CardModule} from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
+import { TableModule } from 'primeng/table';
 
 @NgModule({
   declarations: [
@@ -39,7 +40,7 @@ import { InputTextModule } from 'primeng/inputtext';
     CalendarModule,
     CardModule,
     InputTextModule,
-
+    TableModule
 
   ],
   providers: [],
