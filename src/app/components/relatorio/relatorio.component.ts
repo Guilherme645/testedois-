@@ -139,8 +139,27 @@ export class RelatorioComponent implements OnInit {
   createNewFolder() {
     const folderName = prompt('Digite o nome da nova pasta:');
     if (folderName) {
-      console.log('Nova pasta criada:', folderName);
-      this.loadDirectories();
+      this.relatorioService.createFolder(folderName).subscribe({
+        next: (response) => {
+          console.log('Nova pasta criada:', response);
+                    const newFolder: TreeNode = {
+            label: folderName,
+            data: {
+              name: folderName,
+              directory: true,
+              modifiedDate: new Date().toISOString(),
+              type: 'Pasta de arquivos'
+            },
+            children: [],
+            type: 'folder'
+          };
+            this.files.push(newFolder);
+                    this.loadDirectories(); 
+        },
+        error: (error) => {
+          console.error('Erro ao criar a pasta:', error);
+        }
+      });
     }
   }
 

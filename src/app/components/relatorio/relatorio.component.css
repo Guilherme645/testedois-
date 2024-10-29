@@ -83,6 +83,6 @@
 }
 
 :host ::ng-deep .p-treenode-content.selected {
-  background-color: red !important; 
-  color: white !important; 
+  background-color: red !important; /* Cor de fundo ao selecionar */
+  color: white !important; /* Cor do texto ao selecionar */
 }

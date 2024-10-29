@@ -60,4 +60,15 @@ export class RelatorioService {
     return this.http.post(`${this.apiUrl}/report/generate-json`, { directoryName: directory })
       .pipe(catchError(this.handleError));
   }
+  createFolder(folderName: string): Observable<any> {
+  return this.http.post(`${this.apiUrl}/explorer/create-directory`, folderName)
+    .pipe(catchError(this.handleError));
+}
+uploadFileToDirectory(file: File, directoryPath: string): Observable<any> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  return this.http.post(`${this.apiUrl}/explorer/upload?path=${directoryPath}`, formData)
+    .pipe(catchError(this.handleError));
+}
 }
