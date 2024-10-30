@@ -1,7 +1,7 @@
 <div class="container">
  <div class="menu"> <p-menubar [model]="items"></p-menubar>
-  <input type="file" id="fileInput" (change)="uploadFile($event)" style="display: none;" accept=".zip" />
-</div>
+  <input type="file" id="fileInput" (change)="uploadFile($event)" style="display: none;" />
+  </div>
   <div *ngIf="uploadError" class="error-message">
     <p>{{ uploadError }}</p>
   </div>

@@ -13,7 +13,7 @@ export class RelatorioComponent implements OnInit {
   directories: string[] = [];
   items: MenuItem[] | undefined;
   selectedFileName: string | null = null;
-  selectedDirectory: string | null = null;
+  selectedDirectory: string = '';
   files: TreeNode<any>[] = [];
   selectedFile: TreeNode<any> | TreeNode<any>[] | null = null;
   jsonResult: any = null;
@@ -123,16 +123,10 @@ export class RelatorioComponent implements OnInit {
 
   uploadFile(event: any) {
     const file = event.target.files[0];
-    if (file) {
-      this.relatorioService.uploadFile(file).subscribe({
-        next: (response) => {
-          console.log('Arquivo carregado com sucesso:', response);
-          this.loadDirectories();
-        },
-        error: (error) => {
-          console.error('Erro ao carregar o arquivo:', error);
-        }
-      });
+    if (file && this.selectedDirectory) {  
+      this.uploadFileToDirectory(file, this.selectedDirectory);
+    } else {
+      console.error('Nenhum arquivo ou diretório selecionado');
     }
   }
 
@@ -164,16 +158,7 @@ export class RelatorioComponent implements OnInit {
   }
 
   deleteFolder() {
-    if (this.selectedDirectory) {
-      const confirmation = confirm(`Deseja realmente excluir a pasta ${this.selectedDirectory}?`);
-      if (confirmation) {
-        console.log('Pasta excluída:', this.selectedDirectory);
-        this.selectedDirectory = null;
-        this.loadDirectories();
-      }
-    } else {
-      alert('Nenhuma pasta selecionada para exclusão.');
-    }
+
   }
 
   generateJson(directory: string): void {
@@ -203,5 +188,21 @@ export class RelatorioComponent implements OnInit {
 
   handleReportGeneration(event: any) {
     console.log('Relatório gerado com os dados:', event);
+  }
+
+  uploadFileToDirectory(file: File, directoryPath: string): void {
+    if (file && directoryPath) {
+      this.relatorioService.uploadFileToDirectory(file, directoryPath).subscribe({
+        next: (response) => {
+          console.log('Arquivo carregado com sucesso:', response);
+          this.loadFilesForDirectory(directoryPath); 
+        },
+        error: (error) => {
+          console.error('Erro ao carregar o arquivo:', error);
+        }
+      });
+    } else {
+      console.error('Arquivo ou diretório não especificados.');
+    }
   }
 }

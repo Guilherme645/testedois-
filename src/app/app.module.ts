@@ -13,6 +13,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
+import { DynamicDialogModule } from 'primeng/dynamicdialog';
 
 // Components
 import { AppComponent } from './app.component';
@@ -20,6 +21,7 @@ import { RelatorioComponent } from './components/relatorio/relatorio.component';
 import { MenuBarComponent } from './components/menu-bar/menu-bar.component';
 import { TreeComponent } from './components/tree/tree.component';
 import { GerarRelatorioComponent } from './components/GerarRelatorio/GerarRelatorio.component';
+import { CriarPastaComponent } from './components/criarPasta/criarPasta.component';
 
 
 @NgModule({
@@ -29,6 +31,7 @@ import { GerarRelatorioComponent } from './components/GerarRelatorio/GerarRelato
     GerarRelatorioComponent,
     MenuBarComponent,
     TreeComponent,
+    CriarPastaComponent
   ],
   imports: [
     BrowserModule,
@@ -43,7 +46,8 @@ import { GerarRelatorioComponent } from './components/GerarRelatorio/GerarRelato
     InputTextModule,
     TableModule,
     BrowserAnimationsModule,
-    AppRoutingModule
+    AppRoutingModule,
+    DynamicDialogModule 
   ],
   providers: [],
   bootstrap: [AppComponent],
