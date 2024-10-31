@@ -9,14 +9,14 @@
   <div class="row">
     <div class="col-md-4">
       <p-tree
-          [value]="files"
-          selectionMode="single"
-          [(selection)]="selectedFile"
-          (onNodeSelect)="onNodeSelect($event)"
-          (onNodeExpand)="onNodeExpand($event)"
-          class="w-full p-tree-custom"
-          [style]="{'max-height': '500px', 'overflow-y': 'auto', 'width': '300px'}">
-      </p-tree>
+      [value]="files"
+      selectionMode="single"
+      [(selection)]="selectedFile"
+      (onNodeSelect)="onNodeSelect($event)"
+      (onNodeExpand)="handleNodeSelection($event)"
+      class="w-full p-tree-custom"
+      [style]="{'max-height': '500px', 'overflow-y': 'auto', 'width': '300px'}">
+    </p-tree>
   </div>
 
     <div class="col-md-8">

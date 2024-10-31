@@ -7,7 +7,6 @@ import { MenuItem, TreeNode } from 'primeng/api';
   selector: 'app-relatorio',
   templateUrl: './relatorio.component.html',
   styleUrls: ['./relatorio.component.css'],
-  
 })
 export class RelatorioComponent implements OnInit {
   directories: string[] = [];
@@ -32,32 +31,41 @@ export class RelatorioComponent implements OnInit {
     this.initializeMenu();
     this.loadDirectories();
   }
+
+  // Seleciona o arquivo e gera JSON com base no nome e diretório da pasta
   selectFile(file: any, rowIndex: number): void {
     this.selectedRowIndex = rowIndex;
-    this.generateJson(file.data.nome); 
-  }
+    console.log('Arquivo selecionado na tabela:', file);
+    if (this.selectedDirectory && file.data.nome) {
+        this.openReportDialog(file.data); 
+    } else {
+        console.error('Nenhum diretório ou nome da pasta selecionado.');
+    }
+}
+
+  // Inicializa o menu com as ações necessárias
   initializeMenu() {
     this.items = [
       { label: 'Nova Pasta', icon: 'pi pi-plus', command: () => this.createNewFolder() },
       { label: 'Excluir', icon: 'pi pi-times', command: () => this.deleteFolder() },
-      { label: 'Carregar novo relatório (ZIP)', icon: 'pi pi-file-plus', command: () => this.triggerFileInput() }
+      { label: 'Carregar novo relatório (ZIP)', icon: 'pi pi-file-plus', command: () => this.triggerFileInput() },
     ];
   }
 
+  // Carrega os diretórios iniciais
   loadDirectories() {
-    this.relatorioService.getDirectoryContents('') 
-      .subscribe({
-        next: (data) => {
-          this.files = data; 
-        },
-        error: (error) => {
-          this.errorMessage = 'Erro ao carregar diretórios';
-          console.error('Erro ao carregar diretórios', error);
-        }
-      });
+    this.relatorioService.getDirectoryContents('').subscribe({
+      next: (data) => {
+        this.files = data;
+      },
+      error: (error) => {
+        this.errorMessage = 'Erro ao carregar diretórios';
+        console.error('Erro ao carregar diretórios', error);
+      },
+    });
   }
 
-
+  // Carrega os arquivos do diretório selecionado
   loadFilesInDirectory(directory: string) {
     this.relatorioService.listFolderContents(directory).subscribe({
       next: (files: File[]) => {
@@ -66,34 +74,52 @@ export class RelatorioComponent implements OnInit {
       error: (error: HttpErrorResponse) => {
         this.errorMessage = 'Erro ao carregar arquivos do diretório.';
         console.error(error);
-      }
+      },
     });
   }
 
   loadFilesForDirectory(directory: string) {
     this.relatorioService.listFolderContents(directory).subscribe({
       next: (files: any[]) => {
-        this.filesInDirectory = files; 
-        console.log('Arquivos na pasta selecionada:', this.filesInDirectory); 
+        this.filesInDirectory = files;
+        console.log('Arquivos na pasta selecionada:', this.filesInDirectory);
       },
       error: (error: HttpErrorResponse) => {
         console.error('Erro ao carregar arquivos:', error);
-      }
+      },
     });
   }
 
-
+  // Seleciona o nó para exibir o conteúdo do diretório
   onNodeSelect(event: any) {
     const node = event.node;
     this.selectedDirectory = node.label; 
-
+    console.log('Diretório selecionado:', this.selectedDirectory); 
     if (this.selectedDirectory) {
-      this.loadFilesForDirectory(this.selectedDirectory);
+        this.loadFilesForDirectory(this.selectedDirectory); 
     } else {
-      console.error('Nenhum diretório selecionado');
+        console.error('Nenhum diretório selecionado');
     }
-  }
-
+}
+  // Gera o JSON com base no diretório e pasta selecionados
+  handleNodeSelection(event: any) {
+    const node = event.node;
+    this.selectedDirectory = node.label;
+    const folderName = node.data && node.data.name ? node.data.name : '';
+    if (this.selectedDirectory && folderName) {
+        this.relatorioService.generateJson(this.selectedDirectory, folderName).subscribe({
+            next: (response) => {
+                console.log('JSON gerado com sucesso:', response);
+            },
+            error: (error) => {
+                console.error('Erro ao gerar JSON:', error);
+            }
+        });
+    } else {
+        console.error('Diretório ou nome da pasta não especificado.');
+    }
+}
+  // Expande o diretório no visual da árvore
   onNodeExpand(event: any) {
     const node = event.node;
     const directoryPath = node.label;
@@ -106,12 +132,12 @@ export class RelatorioComponent implements OnInit {
             children: [],
             type: subfolder.directory ? 'folder' : 'file',
             expandedIcon: 'pi pi-chevron-down',
-            collapsedIcon: 'pi pi-chevron-right'
+            collapsedIcon: 'pi pi-chevron-right',
           }));
         },
         error: (error: HttpErrorResponse) => {
           console.error('Erro ao carregar subpastas:', error);
-        }
+        },
       });
     }
   }
@@ -123,68 +149,83 @@ export class RelatorioComponent implements OnInit {
 
   uploadFile(event: any) {
     const file = event.target.files[0];
-    if (file && this.selectedDirectory) {  
+    if (file && this.selectedDirectory) {
       this.uploadFileToDirectory(file, this.selectedDirectory);
     } else {
       console.error('Nenhum arquivo ou diretório selecionado');
     }
   }
 
+  // Cria uma nova pasta no diretório atual
   createNewFolder() {
     const folderName = prompt('Digite o nome da nova pasta:');
     if (folderName) {
       this.relatorioService.createFolder(folderName).subscribe({
         next: (response) => {
           console.log('Nova pasta criada:', response);
-                    const newFolder: TreeNode = {
+          const newFolder: TreeNode = {
             label: folderName,
             data: {
               name: folderName,
               directory: true,
               modifiedDate: new Date().toISOString(),
-              type: 'Pasta de arquivos'
+              type: 'Pasta de arquivos',
             },
             children: [],
-            type: 'folder'
+            type: 'folder',
           };
-            this.files.push(newFolder);
-                    this.loadDirectories(); 
+          this.files.push(newFolder);
+          this.loadDirectories();
         },
         error: (error) => {
           console.error('Erro ao criar a pasta:', error);
-        }
+        },
       });
     }
   }
 
   deleteFolder() {
-
+    // Implementação da exclusão de pasta, se necessário
   }
 
-  generateJson(directory: string): void {
-    this.relatorioService.generateJson(directory).subscribe({
-      next: (jsonResponse: any) => {
-        this.jsonResult = jsonResponse;
-        console.log('JSON gerado com sucesso', jsonResponse);
-      },
-      error: (error) => {
-        const errorMessage = error.error || 'Erro ao gerar JSON';
-        this.uploadError = `Erro ao gerar JSON: ${errorMessage}`;
-      }
+  generateJson(directory: string, folderName: string): void {
+    if (!directory || !folderName) {
+        console.error('Diretório ou nome da pasta não especificado.', { directory, folderName });
+        return; 
+    }
+    console.log('Gerando JSON para:', { directory, folderName }); 
+    this.relatorioService.generateJson(directory, folderName).subscribe({
+        next: (jsonResponse: any) => {
+            this.jsonResult = jsonResponse;
+            console.log('JSON gerado com sucesso:', jsonResponse);
+        },
+        error: (error) => {
+            console.error('Erro ao gerar JSON:', error);
+            const errorMessage = error.error || 'Erro ao gerar JSON';
+            this.uploadError = `Erro ao gerar JSON: ${errorMessage}`;
+        }
     });
-  }
+}
 
-  openReportDialog(file: any) {
-    this.relatorioService.generateJson(file.name).subscribe({
-      next: (jsonResponse) => {
-        this.selectedJsonData = jsonResponse;
-        this.displayModal = true;
-      },
-      error: (error: HttpErrorResponse) => {
-        console.error('Erro ao gerar JSON:', error);
-      }
-    });
+openReportDialog(file: any) {
+  console.log('Arquivo selecionado:', file); 
+  const folderName = file.name || file.label; 
+  const directory = this.selectedDirectory; 
+  console.log('Tentando gerar JSON com:', { directory, folderName }); 
+  if (directory && folderName) {
+      this.relatorioService.generateJson(directory, folderName).subscribe({
+          next: (jsonResponse) => {
+              this.selectedJsonData = jsonResponse;
+              this.displayModal = true;
+          },
+          error: (error: HttpErrorResponse) => {
+              console.error('Erro ao gerar JSON:', error);
+          }
+      });
+  } else {
+      console.error('Diretório ou nome da pasta não especificado.', { directory, folderName }); 
   }
+}
 
   handleReportGeneration(event: any) {
     console.log('Relatório gerado com os dados:', event);
@@ -195,11 +236,11 @@ export class RelatorioComponent implements OnInit {
       this.relatorioService.uploadFileToDirectory(file, directoryPath).subscribe({
         next: (response) => {
           console.log('Arquivo carregado com sucesso:', response);
-          this.loadFilesForDirectory(directoryPath); 
+          this.loadFilesForDirectory(directoryPath);
         },
         error: (error) => {
           console.error('Erro ao carregar o arquivo:', error);
-        }
+        },
       });
     } else {
       console.error('Arquivo ou diretório não especificados.');

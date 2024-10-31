@@ -41,11 +41,12 @@ export class RelatorioService {
   }
 
   // Gera JSON de um diretório específico
-  generateJson(directory: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/report/generate-json`, { directoryName: directory })
-      .pipe(catchError(this.handleError));
-  }
-
+  generateJson(directory: string, folderName: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/report/generate-json`, {
+        directoryName: `${directory}/${folderName}` // Certifique-se de concatenar corretamente
+    })
+    .pipe(catchError(this.handleError));
+}
   // Lista diretórios
   listDirectories(): Observable<any> {
     console.log('Chamando a API para listar diretórios');
@@ -68,13 +69,6 @@ export class RelatorioService {
     }
     return throwError(errorMessage);
   }
-
-  // Gera relatório
-  gerarRelatorio(directory: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/report/generate-json`, { directoryName: directory })
-      .pipe(catchError(this.handleError));
-  }
-
   // Cria nova pasta
   createFolder(folderName: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/explorer/create-directory`, folderName)

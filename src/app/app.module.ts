@@ -13,7 +13,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
-import { DynamicDialogModule } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogModule } from 'primeng/dynamicdialog';
 
 // Components
 import { AppComponent } from './app.component';
@@ -47,9 +47,11 @@ import { CriarPastaComponent } from './components/criarPasta/criarPasta.componen
     TableModule,
     BrowserAnimationsModule,
     AppRoutingModule,
-    DynamicDialogModule 
+    DynamicDialogModule,
+    DialogModule // Adicione aqui
+ 
   ],
-  providers: [],
+  providers: [DialogService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
