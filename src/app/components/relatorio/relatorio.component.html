@@ -30,12 +30,18 @@
             <th pSortableColumn="tipo">Tipo <p-sortIcon field="tipo"></p-sortIcon></th>
           </tr>
         </ng-template>
-    
         <ng-template pTemplate="body" let-file>
           <tr (click)="openReportDialog(file)">
             <td>
-              <i *ngIf="file.data.tipo === 'Pasta de arquivos'" class="pi pi-folder"></i> 
-              <i *ngIf="file.data.tipo !== 'Pasta de arquivos'" class="pi pi-file"></i>
+              <ng-container *ngIf="file.data.tipo === 'Pasta de arquivos'">
+                <img src="../../../assets/file.png" alt="Ícone Amarelo" style="width: 1em; height: 1em;"/> 
+              </ng-container>
+              <ng-container *ngIf="file.data.tipo === 'Arquivo' && file.data.nome.includes('especifico')">
+                <img src="../../../assets/file.png" alt="Ícone Amarelo" style="width: 1em; height: 1em;"/> 
+              </ng-container>
+              <ng-container *ngIf="file.data.tipo !== 'Pasta de arquivos' && !file.data.nome.includes('especifico')">
+                <img src="../../../assets/file.png" alt="Ícone Amarelo" style="width: 1em; height: 1em;"/> 
+              </ng-container>
               {{ file.data.nome }}
             </td>
             <td>{{ file.data.data_modificacao }}</td>
