@@ -52,10 +52,15 @@ export class RelatorioComponent implements OnInit {
     ];
   }
 
+  logFile(file: any): void{
+  console.log('ahhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh', file)
+  }
+
   // Carrega os diretórios iniciais
   loadDirectories() {
     this.relatorioService.getDirectoryContents('').subscribe({
       next: (data) => {
+        console.log('dsadsadsadsada', data);
         this.files = data;
       },
       error: (error) => {
@@ -122,25 +127,29 @@ export class RelatorioComponent implements OnInit {
   // Expande o diretório no visual da árvore
   onNodeExpand(event: any) {
     const node = event.node;
-    const directoryPath = node.label;
-    if (node && node.children.length === 0) {
-      this.relatorioService.getDirectoryContents(directoryPath).subscribe({
-        next: (subfolders: any[]) => {
-          node.children = subfolders.map(subfolder => ({
-            label: subfolder.name,
-            data: { name: subfolder.name, directory: subfolder.directory },
-            children: [],
-            type: subfolder.directory ? 'folder' : 'file',
-            expandedIcon: 'pi pi-chevron-down',
-            collapsedIcon: 'pi pi-chevron-right',
-          }));
-        },
-        error: (error: HttpErrorResponse) => {
-          console.error('Erro ao carregar subpastas:', error);
-        },
-      });
+    const directoryPath = node.label; // Obtém o caminho do diretório do nó expandido
+
+    if (node && node.children.length === 0) { // Verifica se o nó não tem filhos
+        this.relatorioService.getDirectoryContents(directoryPath).subscribe({
+            next: (subfolders: any[]) => {
+              console.log(subfolders)
+                node.children = subfolders.map(subfolder => ({
+                    label: subfolder.name,
+                    data: { 
+                        name: subfolder.name, 
+                        directory: subfolder.directory 
+                    },
+                    children: [],
+                    type: subfolder.directory ? 'folder' : 'file',
+                    icon: subfolder.directory ?   '<img src="src/assets/file.png" alt="">' : 'pi pi-fw pi-file'
+                }));
+            },
+            error: (error: HttpErrorResponse) => {
+                console.error('Erro ao carregar subpastas:', error);
+            },
+        });
     }
-  }
+}
 
   triggerFileInput() {
     const fileInput = document.getElementById('fileInput') as HTMLElement;

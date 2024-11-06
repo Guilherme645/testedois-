@@ -1,6 +1,6 @@
 <div class="container">
- <div class="menu"> <p-menubar [model]="items"></p-menubar>
-  <input type="file" id="fileInput" (change)="uploadFile($event)" style="display: none;" />
+  <div class="menu"> <p-menubar [model]="items"></p-menubar>
+    <input type="file" id="fileInput" (change)="uploadFile($event)" style="display: none;" />
   </div>
   <div *ngIf="uploadError" class="error-message">
     <p>{{ uploadError }}</p>
@@ -8,25 +8,27 @@
 
   <div class="row">
     <div class="col-md-4">
-      <p-tree
-      [value]="files"
-      selectionMode="single"
-      [(selection)]="selectedFile"
-      (onNodeSelect)="onNodeSelect($event)"
-      (onNodeExpand)="handleNodeSelection($event)"
-      class="w-full p-tree-custom"
-      [style]="{'max-height': '500px', 'overflow-y': 'auto', 'width': '300px'}">
-    </p-tree>
-  </div>
+      <p-tree [value]="files" selectionMode="single" [(selection)]="selectedFile" (onNodeSelect)="onNodeSelect($event)"
+        (onNodeExpand)="handleNodeSelection($event)" class="w-full p-tree-custom"
+        [style]="{'max-height': '500px', 'overflow-y': 'auto', 'width': '300px'}">
+        <ng-template let-file pTemplate="default">
+          <div *ngIf="file.data.tipo === 'Pasta de arquivos'" >
+            <img src="../../../assets/file.png" style="width: 1em; height: 1em;">
+          </div>
+          {{file.data.nome}}
+        </ng-template>
+      </p-tree>
+    </div>
 
     <div class="col-md-8">
       <p *ngIf="filesInDirectory.length === 0">Nenhum arquivo encontrado nesta pasta.</p>
-    
+
       <p-table *ngIf="filesInDirectory.length > 0" [value]="filesInDirectory" class="p-datatable-striped">
         <ng-template pTemplate="header">
           <tr>
             <th pSortableColumn="nome">Nome <p-sortIcon field="nome"></p-sortIcon></th>
-            <th pSortableColumn="data_modificacao">Data de Modificação <p-sortIcon field="data_modificacao"></p-sortIcon></th>
+            <th pSortableColumn="data_modificacao">Data de Modificação <p-sortIcon
+                field="data_modificacao"></p-sortIcon></th>
             <th pSortableColumn="tipo">Tipo <p-sortIcon field="tipo"></p-sortIcon></th>
           </tr>
         </ng-template>
@@ -34,13 +36,13 @@
           <tr (click)="openReportDialog(file)">
             <td>
               <ng-container *ngIf="file.data.tipo === 'Pasta de arquivos'">
-                <img src="../../../assets/file.png" alt="Ícone Amarelo" style="width: 1em; height: 1em;"/> 
+                <img src="../../../assets/file.png" alt="Ícone Amarelo" style="width: 1em; height: 1em;" />
               </ng-container>
               <ng-container *ngIf="file.data.tipo === 'Arquivo' && file.data.nome.includes('especifico')">
-                <img src="../../../assets/file.png" alt="Ícone Amarelo" style="width: 1em; height: 1em;"/> 
+                <img src="../../../assets/file.png" alt="Ícone Amarelo" style="width: 1em; height: 1em;" />
               </ng-container>
               <ng-container *ngIf="file.data.tipo !== 'Pasta de arquivos' && !file.data.nome.includes('especifico')">
-                <img src="../../../assets/file.png" alt="Ícone Amarelo" style="width: 1em; height: 1em;"/> 
+                <img src="../../../assets/file.png" alt="Ícone Amarelo" style="width: 1em; height: 1em;" />
               </ng-container>
               {{ file.data.nome }}
             </td>
@@ -51,7 +53,7 @@
       </p-table>
     </div>
 
-  <p-dialog header="Gerar Relatório" [(visible)]="displayModal" [modal]="true">
-    <app-GerarRelatorio [jsonData]="selectedJsonData"></app-GerarRelatorio>
-  </p-dialog>
-</div>
+    <p-dialog header="Gerar Relatório" [(visible)]="displayModal" [modal]="true">
+      <app-GerarRelatorio [jsonData]="selectedJsonData"></app-GerarRelatorio>
+    </p-dialog>
+  </div>
