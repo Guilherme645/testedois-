@@ -11,12 +11,22 @@
       <p-tree [value]="files" selectionMode="single" [(selection)]="selectedFile" (onNodeSelect)="onNodeSelect($event)"
         (onNodeExpand)="handleNodeSelection($event)" class="w-full p-tree-custom"
         [style]="{'max-height': '500px', 'overflow-y': 'auto', 'width': '300px'}">
+        
         <ng-template let-file pTemplate="default">
-          <div *ngIf="file.data.tipo === 'Pasta de arquivos'" >
+          <!-- Ícone para pastas -->
+          <div *ngIf="file.data.tipo === 'Pasta de arquivos'">
             <img src="../../../assets/file.png" style="width: 1em; height: 1em;">
           </div>
-          {{file.data.nome}}
+    
+          <!-- Ícone para arquivos -->
+          <div *ngIf="file.data.tipo === 'Arquivo'">
+            <img src="../../../assets/arqui.png" alt="Ícone de Arquivo" style="width: 1em; height: 1em;" />
+          </div>
+    
+          <!-- Nome do arquivo ou pasta -->
+          {{ file.data.nome }}
         </ng-template>
+        
       </p-tree>
     </div>
 
@@ -36,13 +46,10 @@
           <tr (click)="openReportDialog(file)">
             <td>
               <ng-container *ngIf="file.data.tipo === 'Pasta de arquivos'">
-                <img src="../../../assets/file.png" alt="Ícone Amarelo" style="width: 1em; height: 1em;" />
+                <img src="../../../assets/arqui6.png" alt="Ícone Amarelo" style="width: 2em; height: 2em;" />
               </ng-container>
               <ng-container *ngIf="file.data.tipo === 'Arquivo' && file.data.nome.includes('especifico')">
-                <img src="../../../assets/file.png" alt="Ícone Amarelo" style="width: 1em; height: 1em;" />
-              </ng-container>
-              <ng-container *ngIf="file.data.tipo !== 'Pasta de arquivos' && !file.data.nome.includes('especifico')">
-                <img src="../../../assets/file.png" alt="Ícone Amarelo" style="width: 1em; height: 1em;" />
+                <img src="../../../assets/arqui.png" alt="Ícone Amarelo" style="width: 1em; height: 1em;" />
               </ng-container>
               {{ file.data.nome }}
             </td>
@@ -53,7 +60,8 @@
       </p-table>
     </div>
 
-    <p-dialog header="Gerar Relatório" [(visible)]="displayModal" [modal]="true">
+    <p-dialog header="Gerar Relatório" [(visible)]="displayModal" [modal]="true" [maximizable]="true">
       <app-GerarRelatorio [jsonData]="selectedJsonData"></app-GerarRelatorio>
     </p-dialog>
+    
   </div>

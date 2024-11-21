@@ -48,7 +48,7 @@ import { CriarPastaComponent } from './components/criarPasta/criarPasta.componen
     BrowserAnimationsModule,
     AppRoutingModule,
     DynamicDialogModule,
-    DialogModule // Adicione aqui
+    DialogModule 
  
   ],
   providers: [DialogService],

@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RelatorioService } from 'src/service/relatorio.service';
 import { MenuItem, TreeNode } from 'primeng/api';
+import { Dialog } from 'primeng/dialog';
 
 @Component({
   selector: 'app-relatorio',
@@ -9,6 +10,8 @@ import { MenuItem, TreeNode } from 'primeng/api';
   styleUrls: ['./relatorio.component.css'],
 })
 export class RelatorioComponent implements OnInit {
+  @ViewChild('dialog') dialog: Dialog | undefined;
+
   directories: string[] = [];
   items: MenuItem[] | undefined;
   selectedFileName: string | null = null;
@@ -30,6 +33,7 @@ export class RelatorioComponent implements OnInit {
   ngOnInit() {
     this.initializeMenu();
     this.loadDirectories();
+
   }
 
   // Seleciona o arquivo e gera JSON com base no nome e diretório da pasta
@@ -43,6 +47,12 @@ export class RelatorioComponent implements OnInit {
     }
 }
 
+ngAfterViewInit() {
+  if (this.dialog) {
+    this.dialog.maximize();
+  }
+}
+
   // Inicializa o menu com as ações necessárias
   initializeMenu() {
     this.items = [
@@ -50,10 +60,6 @@ export class RelatorioComponent implements OnInit {
       { label: 'Excluir', icon: 'pi pi-times', command: () => this.deleteFolder() },
       { label: 'Carregar novo relatório (ZIP)', icon: 'pi pi-file-plus', command: () => this.triggerFileInput() },
     ];
-  }
-
-  logFile(file: any): void{
-  console.log('ahhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh', file)
   }
 
   // Carrega os diretórios iniciais
@@ -222,17 +228,22 @@ openReportDialog(file: any) {
   const directory = this.selectedDirectory; 
   console.log('Tentando gerar JSON com:', { directory, folderName }); 
   if (directory && folderName) {
-      this.relatorioService.generateJson(directory, folderName).subscribe({
-          next: (jsonResponse) => {
-              this.selectedJsonData = jsonResponse;
-              this.displayModal = true;
-          },
-          error: (error: HttpErrorResponse) => {
-              console.error('Erro ao gerar JSON:', error);
+    this.relatorioService.generateJson(directory, folderName).subscribe({
+      next: (jsonResponse) => {
+        this.selectedJsonData = jsonResponse;
+        this.displayModal = true;
+        setTimeout(() => {
+          if (this.dialog) {
+            this.dialog.maximize();
           }
-      });
+        }, 0);
+      },
+      error: (error: HttpErrorResponse) => {
+        console.error('Erro ao gerar JSON:', error);
+      }
+    });
   } else {
-      console.error('Diretório ou nome da pasta não especificado.', { directory, folderName }); 
+    console.error('Diretório ou nome da pasta não especificado.', { directory, folderName }); 
   }
 }
 
@@ -254,5 +265,13 @@ openReportDialog(file: any) {
     } else {
       console.error('Arquivo ou diretório não especificados.');
     }
+  }
+
+  openDialog() {
+    this.displayModal = true; // Certifique-se de que 'true' é boolean e não uma string
+  }
+  
+  closeDialog() {
+    this.displayModal = false;
   }
 }
