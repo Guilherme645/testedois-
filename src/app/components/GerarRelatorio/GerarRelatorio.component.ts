@@ -1,5 +1,6 @@
 import { Component, OnChanges, Input, SimpleChanges } from '@angular/core';
 import { FormGroup, FormBuilder, FormControl } from '@angular/forms';
+import { RelatorioService } from 'src/service/relatorio.service';
 
 interface Field {
   name: string;
@@ -20,45 +21,35 @@ interface JsonData {
   templateUrl: './GerarRelatorio.component.html',
   styleUrls: ['./GerarRelatorio.component.css']
 })
-export class GerarRelatorioComponent implements OnChanges {
+export class GerarRelatorioComponent  {
   @Input() jsonData: JsonData | null = null; 
   jsonForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  constructor(private relatorioService: RelatorioService, private fb: FormBuilder) {
     this.jsonForm = this.fb.group({});
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['jsonData'] && this.jsonData) {
-      this.generateForm(this.jsonData);
-    }
-  }
 
-  generateForm(parameters: JsonData): void {
-    if (!parameters || !parameters.parameters) {
-      console.error('Os parâmetros estão indefinidos.');
-      return; 
-    }
 
-    const paramKeys = Object.keys(parameters.parameters);
-    const formControls: { [key: string]: FormControl } = {};
-
-    paramKeys.forEach(key => {
-      const field = parameters.parameters[key];
-
-      if (field?.type) {
-        if (field.type.toLowerCase().includes('timestamp') || field.type.toLowerCase().includes('date')) {
-          formControls[key] = new FormControl(null);
-        } else if (field.type.toLowerCase().includes('integer')) {
-          formControls[key] = new FormControl('');
-        } else {
-          formControls[key] = new FormControl('');
-        }
+  gerarRelatorio(diretorio: string, acao: string): void {
+    this.relatorioService.gerarRelatorio(diretorio, acao).subscribe(response => {
+      const blob = new Blob([response], { type: 'application/pdf' });
+  
+      if (acao === 'v') {
+        const url = window.URL.createObjectURL(blob);
+        window.open(url);
+      } else if (acao === 'd') {
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = `${diretorio}.pdf`;
+        link.click();
       }
+    }, error => {
+      console.error('Erro ao gerar o relatório:', error);
     });
-
-    this.jsonForm = this.fb.group(formControls);
   }
+
+  
 
   getParameterKeys(parameters: Parameters | undefined): string[] {
     return parameters ? Object.keys(parameters) : [];

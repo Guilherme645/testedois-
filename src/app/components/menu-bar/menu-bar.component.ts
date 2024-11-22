@@ -9,6 +9,7 @@ import { RelatorioService } from 'src/service/relatorio.service';
 })
 export class MenuBarComponent implements OnInit {
   items: MenuItem[] | undefined;
+  viewMode: string = 'list';
 
   constructor(
     private relatorioService: RelatorioService,
@@ -30,6 +31,16 @@ export class MenuBarComponent implements OnInit {
         label: 'Carregar novo relatório (ZIP)',
         icon: 'pi pi-file-plus',
         command: () => this.triggerFileInput()  // Dispara o input de upload de arquivo
+      },
+      {
+        label: 'Lista',
+        icon: ' pi pi-list',
+        command: () => this.toggleView('list')
+      },
+      {
+        label: 'Ícones',
+        icon: ' pi pi-list',
+        command: () => this.toggleView('Ícones')
       }
     ];
   }
@@ -38,6 +49,10 @@ export class MenuBarComponent implements OnInit {
   novaPasta() {
     console.log('Criar nova pasta');
     // Adicionar a lógica de criação de pasta aqui
+  }
+
+  toggleView(mode: string) {
+    this.viewMode = mode;
   }
 
   // Função para excluir

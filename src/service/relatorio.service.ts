@@ -79,4 +79,15 @@ export class RelatorioService {
     return this.http.post(`${this.apiUrl}/explorer/create-directory`, nomePasta)
       .pipe(catchError(this.tratarErro)); // Trata erros na requisição
   }
+
+  gerarRelatorio(directory: string, action: string): Observable<Blob> {
+    const requestBody = {
+      directory: directory,
+      action: action
+    };
+    return this.http.post(`${this.apiUrl}/report/generate-report`, requestBody, {
+      responseType: 'blob'
+    }).pipe(catchError(this.tratarErro));
+  }
+
 }

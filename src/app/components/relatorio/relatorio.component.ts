@@ -25,6 +25,7 @@ export class RelatorioComponent implements OnInit {
   errorMessage: string | null = null;
   displayModal: boolean = false;
   selectedJsonData: any;
+  viewMode: string = 'list';
   selectedRowIndex: number | null = null;
   constructor(private relatorioService: RelatorioService) {} // Injeta o serviço para gerenciar diretórios e arquivos
 
@@ -45,6 +46,9 @@ export class RelatorioComponent implements OnInit {
     }
   }
 
+
+  
+
   // Após a interface ser totalmente carregada, maximiza o modal de diálogo, se existir
   ngAfterViewInit() {
     if (this.dialog) {
@@ -62,9 +66,14 @@ export class RelatorioComponent implements OnInit {
       { label: 'Nova Pasta', icon: 'pi pi-plus', command: () => this.criarNovaPasta() },
       { label: 'Excluir', icon: 'pi pi-times', command: () => this.excluirPasta() },
       { label: 'Carregar novo relatório (ZIP)', icon: 'pi pi-file-plus', command: () => this.dispararEntradaArquivo() },
+      { label: 'Lista', icon: ' pi pi-list', command: () => this.toggleView('list')},
+      { label: 'Ícones',icon: ' pi pi-th-large', command: () => this.toggleView('icons')}
     ];
   }
 
+toggleView(mode: string) {
+    this.viewMode = mode;
+  }
   // Carrega a lista de diretórios do sistema
   carregarDiretorios() {
     this.relatorioService.obterConteudoDoDiretorio('').subscribe({

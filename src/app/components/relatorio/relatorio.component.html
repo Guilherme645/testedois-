@@ -49,8 +49,8 @@
       <!-- Mensagem se não houver arquivos na pasta -->
       <p *ngIf="filesInDirectory.length === 0">Nenhum arquivo encontrado nesta pasta.</p>
 
-      <!-- Tabela para listar arquivos da pasta -->
-      <p-table *ngIf="filesInDirectory.length > 0" [value]="filesInDirectory" class="p-datatable-striped">
+      <!-- Visualização em Lista -->
+      <p-table *ngIf="viewMode === 'list' && filesInDirectory.length > 0" [value]="filesInDirectory" class="p-datatable-striped">
         <!-- Cabeçalho da tabela -->
         <ng-template pTemplate="header">
           <tr>
@@ -69,7 +69,7 @@
                 <ng-container *ngIf="file.data.tipo === 'Pasta de arquivos'">
                   <img src="../../../assets/arqui6.png" alt="Ícone Amarelo" style="width: 1em; height: 1em; margin-right: 0.5em;" />
                 </ng-container>
-              <!-- Ícone e nome para arquivos específicos -->
+                <!-- Ícone e nome para arquivos específicos -->
                 <ng-container *ngIf="file.data.tipo === 'Arquivo' && file.data.nome.includes('especifico')">
                   <img src="../../../assets/arqui.png" alt="Ícone Amarelo" style="width: 1em; height: 1em; margin-right: 0.5em;" />
                 </ng-container>
@@ -81,6 +81,14 @@
           </tr>
         </ng-template>
       </p-table>
+
+      <!-- Visualização em Ícones -->
+      <div *ngIf="viewMode === 'icons' && filesInDirectory.length > 0" class="icon-view">
+        <div class="file-icon" *ngFor="let file of filesInDirectory" (click)="abrirDialogoRelatorio(file)" pTooltip="{{ 'Nome: ' + file.data.nome + '\nData de Modificação: ' + file.data.data_modificacao + '\nTipo: ' + file.data.tipo }}" tooltipPosition="top">
+          <img [src]="file.data.tipo === 'Pasta de arquivos' ? '../../../assets/arqui6.png' : '../../../assets/arqui.png'" alt="Ícone" style="width: 3em; height: 3em; margin-bottom: 0.5em;" />
+          <p>{{ file.data.nome }}</p>
+        </div>
+      </div>
     </div>
 
     <!-- Modal para gerar relatório -->
