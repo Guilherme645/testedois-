@@ -20,9 +20,9 @@ export class CriarPastaComponent {
     this.display = false; // Fecha o diálogo
   }
 
-  createNewFolder() {
+  criarNovaPasta() {
     if (this.folderName) {
-      this.relatorioService.createFolder(this.folderName).subscribe({
+      this.relatorioService.criarPasta(this.folderName).subscribe({
         next: (response) => {
           console.log('Nova pasta criada:', response);
           this.closeDialog(); // Fecha o diálogo após criar a pasta

@@ -12,66 +12,71 @@ export class RelatorioService {
 
   constructor(private http: HttpClient) {}
 
-  // Upload de arquivo para um diretório específico
-  uploadFileToDirectory(file: File, directoryPath: string): Observable<any> {
+  // Enviar um arquivo para um diretório específico no servidor
+  enviarArquivoParaDiretorio(arquivo: File, caminhoDiretorio: string): Observable<any> {
     const formData = new FormData();
-    formData.append('file', file);
-    formData.append('path', directoryPath); 
+    formData.append('file', arquivo); // Adiciona o arquivo ao formulário
+    formData.append('path', caminhoDiretorio); // Adiciona o caminho do diretório
     return this.http.post(`${this.apiUrl}/report/upload`, formData)
-      .pipe(catchError(this.handleError));
+      .pipe(catchError(this.tratarErro)); // Trata erros na requisição
   }
-  // Upload de arquivo
-  uploadFile(file: File): Observable<any> {
+
+  // Enviar um arquivo para o servidor (sem diretório específico)
+  enviarArquivo(arquivo: File): Observable<any> {
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', arquivo); // Adiciona o arquivo ao formulário
 
     return this.http.post(`${this.apiUrl}/report/upload`, formData, { responseType: 'text' })
-      .pipe(catchError(this.handleError));
+      .pipe(catchError(this.tratarErro)); // Trata erros na requisição
   }
 
-  // Obtém diretórios iniciais
-  getInitialDirectories(): Observable<any[]> {
+  // Obter a lista de diretórios iniciais disponíveis
+  obterDiretoriosIniciais(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/explorer/directories`);
   }
 
-  // Obtém conteúdo de um diretório
-  getDirectoryContents(path: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/explorer/list?path=${path}`)
-      .pipe(catchError(this.handleError));
+  // Obter o conteúdo (arquivos e subpastas) de um diretório específico
+  obterConteudoDoDiretorio(caminho: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/explorer/list?path=${caminho}`)
+      .pipe(catchError(this.tratarErro)); // Trata erros na requisição
   }
 
-  // Gera JSON de um diretório específico
-  generateJson(directory: string, folderName: string): Observable<any> {
+  // Gerar um arquivo JSON com base nos dados de um diretório específico
+  gerarJson(diretorio: string, nomePasta: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/report/generate-json`, {
-        directoryName: `${directory}/${folderName}` // Certifique-se de concatenar corretamente
+        directoryName: `${diretorio}/${nomePasta}` // Envia o nome do diretório completo
     })
-    .pipe(catchError(this.handleError));
-}
-  // Lista diretórios
-  listDirectories(): Observable<any> {
+    .pipe(catchError(this.tratarErro)); // Trata erros na requisição
+  }
+
+  // Listar todos os diretórios disponíveis
+  listarDiretorios(): Observable<any> {
     console.log('Chamando a API para listar diretórios');
     return this.http.get<any>(`${this.apiUrl}/explorer/directories`);
   }
 
-  // Lista conteúdos de uma pasta
-  listFolderContents(path: string): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/explorer/list`, { params: { path } })
-      .pipe(catchError(this.handleError));
+  // Listar o conteúdo (arquivos e subpastas) de uma pasta específica
+  listarConteudoDaPasta(caminho: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/explorer/list`, { params: { path: caminho } })
+      .pipe(catchError(this.tratarErro)); // Trata erros na requisição
   }
 
-  // Manipulador de erros
-  private handleError(error: HttpErrorResponse) {
-    let errorMessage = 'Erro desconhecido!';
-    if (error.error instanceof ErrorEvent) {
-      errorMessage = `Erro: ${error.error.message}`;
+  // Manipulador genérico de erros de requisição HTTP
+  private tratarErro(erro: HttpErrorResponse) {
+    let mensagemErro = 'Erro desconhecido!';
+    if (erro.error instanceof ErrorEvent) {
+      // Erro do lado do cliente (navegador)
+      mensagemErro = `Erro: ${erro.error.message}`;
     } else {
-      errorMessage = `Erro ${error.status}: ${error.message}`;
+      // Erro do lado do servidor
+      mensagemErro = `Erro ${erro.status}: ${erro.message}`;
     }
-    return throwError(errorMessage);
+    return throwError(mensagemErro); // Retorna o erro para quem chamou o método
   }
-  // Cria nova pasta
-  createFolder(folderName: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/explorer/create-directory`, folderName)
-      .pipe(catchError(this.handleError));
+
+  // Criar uma nova pasta no servidor
+  criarPasta(nomePasta: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/explorer/create-directory`, nomePasta)
+      .pipe(catchError(this.tratarErro)); // Trata erros na requisição
   }
 }

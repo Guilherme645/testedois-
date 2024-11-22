@@ -56,7 +56,7 @@ export class MenuBarComponent implements OnInit {
  uploadFile(event: any) {
   const file = event.target.files[0];
   if (file) {
-    this.relatorioService.uploadFile(file).subscribe({
+    this.relatorioService.enviarArquivo(file).subscribe({
       next: (response) => {
         console.log('Arquivo carregado com sucesso:', response);
         // Recarrega os diretórios após o upload

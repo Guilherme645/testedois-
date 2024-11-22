@@ -1,17 +1,16 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { RelatorioService } from 'src/service/relatorio.service';
-import { MenuItem, TreeNode } from 'primeng/api';
-import { Dialog } from 'primeng/dialog';
+import { RelatorioService } from 'src/service/relatorio.service'; // Serviço que lida com dados de arquivos e diretórios
+import { MenuItem, TreeNode } from 'primeng/api'; // Componentes do PrimeNG usados no menu e na árvore de pastas
+import { Dialog } from 'primeng/dialog'; // Componente do PrimeNG usado para exibir modais (janelas flutuantes)
 
 @Component({
-  selector: 'app-relatorio',
-  templateUrl: './relatorio.component.html',
-  styleUrls: ['./relatorio.component.css'],
+  selector: 'app-relatorio', // Identificador do componente
+  templateUrl: './relatorio.component.html', // Arquivo HTML que define a interface gráfica
+  styleUrls: ['./relatorio.component.css'], // Arquivo CSS que define o estilo do componente
 })
 export class RelatorioComponent implements OnInit {
   @ViewChild('dialog') dialog: Dialog | undefined;
-
   directories: string[] = [];
   items: MenuItem[] | undefined;
   selectedFileName: string | null = null;
@@ -27,47 +26,51 @@ export class RelatorioComponent implements OnInit {
   displayModal: boolean = false;
   selectedJsonData: any;
   selectedRowIndex: number | null = null;
+  constructor(private relatorioService: RelatorioService) {} // Injeta o serviço para gerenciar diretórios e arquivos
 
-  constructor(private relatorioService: RelatorioService) {}
-
+  // Método chamado assim que o componente é carregado
   ngOnInit() {
-    this.initializeMenu();
-    this.loadDirectories();
-
+    this.inicializarMenu(); // Configura o menu superior
+    this.carregarDiretorios(); // Carrega os diretórios iniciais
   }
 
-  // Seleciona o arquivo e gera JSON com base no nome e diretório da pasta
-  selectFile(file: any, rowIndex: number): void {
+  // Quando um arquivo é selecionado na tabela, tenta gerar o JSON correspondente
+  selecionarArquivo(arquivo: any, rowIndex: number): void {
     this.selectedRowIndex = rowIndex;
-    console.log('Arquivo selecionado na tabela:', file);
-    if (this.selectedDirectory && file.data.nome) {
-        this.openReportDialog(file.data); 
+    console.log('Arquivo selecionado na tabela:', arquivo);
+    if (this.selectedDirectory && arquivo.data.nome) {
+      this.abrirDialogoRelatorio(arquivo.data); // Abre o modal para gerar o relatório
     } else {
-        console.error('Nenhum diretório ou nome da pasta selecionado.');
+      console.error('Nenhum diretório ou nome da pasta selecionado.');
     }
-}
-
-ngAfterViewInit() {
-  if (this.dialog) {
-    this.dialog.maximize();
   }
-}
 
-  // Inicializa o menu com as ações necessárias
-  initializeMenu() {
+  // Após a interface ser totalmente carregada, maximiza o modal de diálogo, se existir
+  ngAfterViewInit() {
+    if (this.dialog) {
+      this.dialog.maximize();
+    }
+  }
+
+  excluirPasta(){
+
+  }
+
+  // Configura o menu superior com as opções de criar pasta, excluir e carregar arquivo
+  inicializarMenu() {
     this.items = [
-      { label: 'Nova Pasta', icon: 'pi pi-plus', command: () => this.createNewFolder() },
-      { label: 'Excluir', icon: 'pi pi-times', command: () => this.deleteFolder() },
-      { label: 'Carregar novo relatório (ZIP)', icon: 'pi pi-file-plus', command: () => this.triggerFileInput() },
+      { label: 'Nova Pasta', icon: 'pi pi-plus', command: () => this.criarNovaPasta() },
+      { label: 'Excluir', icon: 'pi pi-times', command: () => this.excluirPasta() },
+      { label: 'Carregar novo relatório (ZIP)', icon: 'pi pi-file-plus', command: () => this.dispararEntradaArquivo() },
     ];
   }
 
-  // Carrega os diretórios iniciais
-  loadDirectories() {
-    this.relatorioService.getDirectoryContents('').subscribe({
+  // Carrega a lista de diretórios do sistema
+  carregarDiretorios() {
+    this.relatorioService.obterConteudoDoDiretorio('').subscribe({
       next: (data) => {
-        console.log('dsadsadsadsada', data);
-        this.files = data;
+        console.log('Diretórios carregados:', data);
+        this.files = data; // Atualiza a árvore de diretórios
       },
       error: (error) => {
         this.errorMessage = 'Erro ao carregar diretórios';
@@ -76,23 +79,11 @@ ngAfterViewInit() {
     });
   }
 
-  // Carrega os arquivos do diretório selecionado
-  loadFilesInDirectory(directory: string) {
-    this.relatorioService.listFolderContents(directory).subscribe({
-      next: (files: File[]) => {
-        this.files = files.map(file => ({ label: file.name, data: file, type: 'file' }));
-      },
-      error: (error: HttpErrorResponse) => {
-        this.errorMessage = 'Erro ao carregar arquivos do diretório.';
-        console.error(error);
-      },
-    });
-  }
-
-  loadFilesForDirectory(directory: string) {
-    this.relatorioService.listFolderContents(directory).subscribe({
-      next: (files: any[]) => {
-        this.filesInDirectory = files;
+  // Carrega os arquivos de um diretório específico selecionado na árvore
+  carregarArquivosParaDiretorio(diretorio: string) {
+    this.relatorioService.listarConteudoDaPasta(diretorio).subscribe({
+      next: (arquivos: any[]) => {
+        this.filesInDirectory = arquivos; // Exibe os arquivos na tabela
         console.log('Arquivos na pasta selecionada:', this.filesInDirectory);
       },
       error: (error: HttpErrorResponse) => {
@@ -101,96 +92,65 @@ ngAfterViewInit() {
     });
   }
 
-  // Seleciona o nó para exibir o conteúdo do diretório
-  onNodeSelect(event: any) {
+  // Quando um nó (diretório ou arquivo) é selecionado na árvore
+  aoSelecionarNo(event: any) {
     const node = event.node;
-    this.selectedDirectory = node.label; 
-    console.log('Diretório selecionado:', this.selectedDirectory); 
+    this.selectedDirectory = node.label; // Atualiza o diretório selecionado
+    console.log('Diretório selecionado:', this.selectedDirectory);
     if (this.selectedDirectory) {
-        this.loadFilesForDirectory(this.selectedDirectory); 
+      this.carregarArquivosParaDiretorio(this.selectedDirectory); // Exibe os arquivos no diretório
     } else {
-        console.error('Nenhum diretório selecionado');
+      console.error('Nenhum diretório selecionado');
     }
-}
-  // Gera o JSON com base no diretório e pasta selecionados
-  handleNodeSelection(event: any) {
+  }
+
+  // Gera JSON com base no diretório e nome da pasta
+  lidarComSelecaoDeNo(event: any) {
     const node = event.node;
     this.selectedDirectory = node.label;
     const folderName = node.data && node.data.name ? node.data.name : '';
     if (this.selectedDirectory && folderName) {
-        this.relatorioService.generateJson(this.selectedDirectory, folderName).subscribe({
-            next: (response) => {
-                console.log('JSON gerado com sucesso:', response);
-            },
-            error: (error) => {
-                console.error('Erro ao gerar JSON:', error);
-            }
-        });
+      this.relatorioService.gerarJson(this.selectedDirectory, folderName).subscribe({
+        next: (response) => {
+          console.log('JSON gerado com sucesso:', response);
+        },
+        error: (error) => {
+          console.error('Erro ao gerar JSON:', error);
+        },
+      });
     } else {
-        console.error('Diretório ou nome da pasta não especificado.');
+      console.error('Diretório ou nome da pasta não especificado.');
     }
-}
-  // Expande o diretório no visual da árvore
-  onNodeExpand(event: any) {
-    const node = event.node;
-    const directoryPath = node.label; // Obtém o caminho do diretório do nó expandido
-
-    if (node && node.children.length === 0) { // Verifica se o nó não tem filhos
-        this.relatorioService.getDirectoryContents(directoryPath).subscribe({
-            next: (subfolders: any[]) => {
-              console.log(subfolders)
-                node.children = subfolders.map(subfolder => ({
-                    label: subfolder.name,
-                    data: { 
-                        name: subfolder.name, 
-                        directory: subfolder.directory 
-                    },
-                    children: [],
-                    type: subfolder.directory ? 'folder' : 'file',
-                    icon: subfolder.directory ?   '<img src="src/assets/file.png" alt="">' : 'pi pi-fw pi-file'
-                }));
-            },
-            error: (error: HttpErrorResponse) => {
-                console.error('Erro ao carregar subpastas:', error);
-            },
-        });
-    }
-}
-
-  triggerFileInput() {
-    const fileInput = document.getElementById('fileInput') as HTMLElement;
-    fileInput.click();
   }
 
-  uploadFile(event: any) {
-    const file = event.target.files[0];
-    if (file && this.selectedDirectory) {
-      this.uploadFileToDirectory(file, this.selectedDirectory);
+  // Abre o modal para mostrar o relatório de um arquivo
+  abrirDialogoRelatorio(arquivo: any) {
+    console.log('Arquivo selecionado:', arquivo);
+    const folderName = arquivo.name || arquivo.label;
+    const directory = this.selectedDirectory;
+    if (directory && folderName) {
+      this.relatorioService.gerarJson(directory, folderName).subscribe({
+        next: (jsonResponse) => {
+          this.selectedJsonData = jsonResponse; // Exibe os dados do JSON no modal
+          this.displayModal = true;
+        },
+        error: (error: HttpErrorResponse) => {
+          console.error('Erro ao gerar JSON:', error);
+        },
+      });
     } else {
-      console.error('Nenhum arquivo ou diretório selecionado');
+      console.error('Diretório ou nome da pasta não especificado.');
     }
   }
 
   // Cria uma nova pasta no diretório atual
-  createNewFolder() {
-    const folderName = prompt('Digite o nome da nova pasta:');
+  criarNovaPasta() {
+    const folderName = prompt('Digite o nome da nova pasta:'); // Pede o nome da nova pasta ao usuário
     if (folderName) {
-      this.relatorioService.createFolder(folderName).subscribe({
+      this.relatorioService.criarPasta(folderName).subscribe({
         next: (response) => {
           console.log('Nova pasta criada:', response);
-          const newFolder: TreeNode = {
-            label: folderName,
-            data: {
-              name: folderName,
-              directory: true,
-              modifiedDate: new Date().toISOString(),
-              type: 'Pasta de arquivos',
-            },
-            children: [],
-            type: 'folder',
-          };
-          this.files.push(newFolder);
-          this.loadDirectories();
+          this.carregarDiretorios(); // Atualiza a lista de diretórios
         },
         error: (error) => {
           console.error('Erro ao criar a pasta:', error);
@@ -199,64 +159,28 @@ ngAfterViewInit() {
     }
   }
 
-  deleteFolder() {
-    // Implementação da exclusão de pasta, se necessário
-  }
-
-  generateJson(directory: string, folderName: string): void {
-    if (!directory || !folderName) {
-        console.error('Diretório ou nome da pasta não especificado.', { directory, folderName });
-        return; 
+  // Envia um arquivo para upload no diretório selecionado
+  enviarArquivo(event: any) {
+    const file = event.target.files[0];
+    if (file && this.selectedDirectory) {
+      this.enviarArquivoParaDiretorio(file, this.selectedDirectory); // Faz o upload
+    } else {
+      console.error('Nenhum arquivo ou diretório selecionado');
     }
-    console.log('Gerando JSON para:', { directory, folderName }); 
-    this.relatorioService.generateJson(directory, folderName).subscribe({
-        next: (jsonResponse: any) => {
-            this.jsonResult = jsonResponse;
-            console.log('JSON gerado com sucesso:', jsonResponse);
-        },
-        error: (error) => {
-            console.error('Erro ao gerar JSON:', error);
-            const errorMessage = error.error || 'Erro ao gerar JSON';
-            this.uploadError = `Erro ao gerar JSON: ${errorMessage}`;
-        }
-    });
-}
-
-openReportDialog(file: any) {
-  console.log('Arquivo selecionado:', file); 
-  const folderName = file.name || file.label; 
-  const directory = this.selectedDirectory; 
-  console.log('Tentando gerar JSON com:', { directory, folderName }); 
-  if (directory && folderName) {
-    this.relatorioService.generateJson(directory, folderName).subscribe({
-      next: (jsonResponse) => {
-        this.selectedJsonData = jsonResponse;
-        this.displayModal = true;
-        setTimeout(() => {
-          if (this.dialog) {
-            this.dialog.maximize();
-          }
-        }, 0);
-      },
-      error: (error: HttpErrorResponse) => {
-        console.error('Erro ao gerar JSON:', error);
-      }
-    });
-  } else {
-    console.error('Diretório ou nome da pasta não especificado.', { directory, folderName }); 
-  }
-}
-
-  handleReportGeneration(event: any) {
-    console.log('Relatório gerado com os dados:', event);
   }
 
-  uploadFileToDirectory(file: File, directoryPath: string): void {
-    if (file && directoryPath) {
-      this.relatorioService.uploadFileToDirectory(file, directoryPath).subscribe({
+  dispararEntradaArquivo() {
+    const fileInput = document.getElementById('fileInput') as HTMLElement;
+    fileInput.click();
+  }
+
+  // Carrega um arquivo e exibe os dados no modal
+  enviarArquivoParaDiretorio(arquivo: File, caminhoDiretorio: string): void {
+    if (arquivo && caminhoDiretorio) {
+      this.relatorioService.enviarArquivoParaDiretorio(arquivo, caminhoDiretorio).subscribe({
         next: (response) => {
           console.log('Arquivo carregado com sucesso:', response);
-          this.loadFilesForDirectory(directoryPath);
+          this.carregarArquivosParaDiretorio(caminhoDiretorio); // Atualiza os arquivos no diretório
         },
         error: (error) => {
           console.error('Erro ao carregar o arquivo:', error);
@@ -265,13 +189,5 @@ openReportDialog(file: any) {
     } else {
       console.error('Arquivo ou diretório não especificados.');
     }
-  }
-
-  openDialog() {
-    this.displayModal = true; // Certifique-se de que 'true' é boolean e não uma string
-  }
-  
-  closeDialog() {
-    this.displayModal = false;
   }
 }
