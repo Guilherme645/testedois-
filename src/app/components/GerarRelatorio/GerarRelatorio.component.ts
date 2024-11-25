@@ -26,6 +26,7 @@ export class GerarRelatorioComponent {
   jsonForm: FormGroup; // Formulário para os parâmetros do relatório
   selectedDirectory: string = ''; // Diretório selecionado
   selectedAction: string = ''; // Ação selecionada ('v' para visualizar ou 'd' para download)
+  selectedSubDirectory: string | null = null;
 
   constructor(private relatorioService: RelatorioService, private fb: FormBuilder) {
     this.jsonForm = this.fb.group({});
@@ -36,16 +37,16 @@ export class GerarRelatorioComponent {
    * @param directory Diretório do relatório.
    * @param action Ação ('v' para visualizar, 'd' para download).
    */
-  baixarOuVisualizarRelatorio(directory: string, action: string): void {
-    if (!directory) {
-      alert('Selecione um diretório antes de continuar.');
+  baixarOuVisualizarRelatorio(directory: string, subDirectory: string, action: string): void {
+    if (!directory || !subDirectory) {
+      alert('Selecione um diretório e subdiretório antes de continuar.');
       return;
     }
-
-    this.relatorioService.gerarRelatorio(directory, action).subscribe({
+  
+    this.relatorioService.gerarRelatorio(directory, subDirectory, action).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
-
+  
         if (action === 'v') {
           // Abrir relatório no navegador
           window.open(url, '_blank');
@@ -53,7 +54,7 @@ export class GerarRelatorioComponent {
           // Baixar relatório como arquivo
           const a = document.createElement('a');
           a.href = url;
-          a.download = `${directory}.pdf`;
+          a.download = `${directory}_${subDirectory}.pdf`;
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
@@ -62,7 +63,7 @@ export class GerarRelatorioComponent {
       error: (error) => {
         console.error('Erro ao gerar o relatório:', error);
         alert('Erro ao gerar o relatório. Verifique o console para mais detalhes.');
-      }
+      },
     });
   }
 
@@ -70,10 +71,17 @@ export class GerarRelatorioComponent {
    * Atualiza o diretório selecionado.
    * @param directory Nome do diretório.
    */
-  selecionarDiretorio(directory: string): void {
-    this.selectedDirectory = directory;
-  }
 
+  aoSelecionarNo(event: any) {
+    const node = event.node;
+  
+    if (node) {
+      this.selectedDirectory = node.parent?.data?.nome || null; // Define o diretório principal
+      this.selectedSubDirectory = node.data.nome || null; // Define o subdiretório
+      console.log('Diretório selecionado:', this.selectedDirectory);
+      console.log('Subdiretório selecionado:', this.selectedSubDirectory);
+    }
+  }
   /**
    * Obtém as chaves dos parâmetros do JSON.
    * @param parameters Parâmetros do JSON.

@@ -104,22 +104,22 @@ export class RelatorioService {
    * @param directory Caminho do diretório.
    * @param action Ação a ser realizada ('v' para visualizar ou 'd' para download).
    */
-  gerarRelatorio(directory: string, action: string): Observable<Blob> {
-    const requestBody = { directory, action };
+ gerarRelatorio(directory: string, subDirectory: string, action: string): Observable<Blob> {
+  const requestBody = { directory, subDirectory, action };
 
-    return this.http.post<Blob>(`${this.apiUrl}/report/generate-report`, requestBody, {
-      responseType: 'blob' as 'json'
-    }).pipe(
-      catchError((erro: HttpErrorResponse) => {
-        const mensagemErro =
-          erro.error instanceof ErrorEvent
-            ? `Erro no cliente: ${erro.error.message}`
-            : `Erro no servidor ${erro.status}: ${erro.message}`;
-        console.error(`Erro ao gerar relatório: ${mensagemErro}`);
-        return throwError(mensagemErro);
-      })
-    );
-  }
+  return this.http.post<Blob>(`${this.apiUrl}/report/generate-report`, requestBody, {
+    responseType: 'blob' as 'json',
+  }).pipe(
+    catchError((erro: HttpErrorResponse) => {
+      const mensagemErro =
+        erro.error instanceof ErrorEvent
+          ? `Erro no cliente: ${erro.error.message}`
+          : `Erro no servidor ${erro.status}: ${erro.message}`;
+      console.error(`Erro ao gerar relatório: ${mensagemErro}`);
+      return throwError(mensagemErro);
+    })
+  );
+}
 
   /**
    * Manipulador genérico de erros nas requisições HTTP.
