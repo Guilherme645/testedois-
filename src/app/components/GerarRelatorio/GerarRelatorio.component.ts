@@ -21,40 +21,73 @@ interface JsonData {
   templateUrl: './GerarRelatorio.component.html',
   styleUrls: ['./GerarRelatorio.component.css']
 })
-export class GerarRelatorioComponent  {
-  @Input() jsonData: JsonData | null = null; 
-  jsonForm: FormGroup;
+export class GerarRelatorioComponent {
+  @Input() jsonData: JsonData | null = null; // Dados do JSON recebidos como entrada
+  jsonForm: FormGroup; // Formulário para os parâmetros do relatório
+  selectedDirectory: string = ''; // Diretório selecionado
+  selectedAction: string = ''; // Ação selecionada ('v' para visualizar ou 'd' para download)
 
   constructor(private relatorioService: RelatorioService, private fb: FormBuilder) {
     this.jsonForm = this.fb.group({});
   }
 
+  /**
+   * Baixar ou visualizar o relatório baseado no diretório selecionado e ação.
+   * @param directory Diretório do relatório.
+   * @param action Ação ('v' para visualizar, 'd' para download).
+   */
+  baixarOuVisualizarRelatorio(directory: string, action: string): void {
+    if (!directory) {
+      alert('Selecione um diretório antes de continuar.');
+      return;
+    }
 
-
-  gerarRelatorio(diretorio: string, acao: string): void {
-    this.relatorioService.gerarRelatorio(diretorio, acao).subscribe(response => {
-      const blob = new Blob([response], { type: 'application/pdf' });
-  
-      if (acao === 'v') {
+    this.relatorioService.gerarRelatorio(directory, action).subscribe({
+      next: (blob) => {
         const url = window.URL.createObjectURL(blob);
-        window.open(url);
-      } else if (acao === 'd') {
-        const link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        link.download = `${diretorio}.pdf`;
-        link.click();
+
+        if (action === 'v') {
+          // Abrir relatório no navegador
+          window.open(url, '_blank');
+        } else if (action === 'd') {
+          // Baixar relatório como arquivo
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${directory}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        }
+      },
+      error: (error) => {
+        console.error('Erro ao gerar o relatório:', error);
+        alert('Erro ao gerar o relatório. Verifique o console para mais detalhes.');
       }
-    }, error => {
-      console.error('Erro ao gerar o relatório:', error);
     });
   }
 
-  
+  /**
+   * Atualiza o diretório selecionado.
+   * @param directory Nome do diretório.
+   */
+  selecionarDiretorio(directory: string): void {
+    this.selectedDirectory = directory;
+  }
 
+  /**
+   * Obtém as chaves dos parâmetros do JSON.
+   * @param parameters Parâmetros do JSON.
+   * @returns Lista de chaves.
+   */
   getParameterKeys(parameters: Parameters | undefined): string[] {
     return parameters ? Object.keys(parameters) : [];
   }
 
+  /**
+   * Gera um placeholder amigável para os parâmetros baseados na chave.
+   * @param key Chave do parâmetro.
+   * @returns Placeholder formatado.
+   */
   getPlaceholder(key: string): string {
     return key.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
   }

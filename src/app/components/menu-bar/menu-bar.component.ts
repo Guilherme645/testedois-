@@ -68,19 +68,19 @@ export class MenuBarComponent implements OnInit {
   }
 
  // Função de upload de arquivo
- uploadFile(event: any) {
-  const file = event.target.files[0];
-  if (file) {
-    this.relatorioService.enviarArquivo(file).subscribe({
-      next: (response) => {
-        console.log('Arquivo carregado com sucesso:', response);
-        // Recarrega os diretórios após o upload
-        // Você pode adicionar a função para recarregar diretórios aqui
-      },
-      error: (error) => {
-        console.error('Erro ao carregar o arquivo:', error);
-      }
-    });
-  }
-}
+//  uploadFile(event: any) {
+//   const file = event.target.files[0];
+//   if (file) {
+//     this.relatorioService.enviarArquivo(file).subscribe({
+//       next: (response) => {
+//         console.log('Arquivo carregado com sucesso:', response);
+//         // Recarrega os diretórios após o upload
+//         // Você pode adicionar a função para recarregar diretórios aqui
+//       },
+//       error: (error) => {
+//         console.error('Erro ao carregar o arquivo:', error);
+//       }
+//     });
+//   }
+// }
 }

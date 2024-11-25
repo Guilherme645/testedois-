@@ -14,6 +14,7 @@ import { TableModule } from 'primeng/table';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { DialogService, DynamicDialogModule } from 'primeng/dynamicdialog';
+import { TooltipModule } from 'primeng/tooltip';
 
 // Components
 import { AppComponent } from './app.component';
@@ -48,7 +49,8 @@ import { CriarPastaComponent } from './components/criarPasta/criarPasta.componen
     BrowserAnimationsModule,
     AppRoutingModule,
     DynamicDialogModule,
-    DialogModule 
+    DialogModule,
+    TooltipModule 
  
   ],
   providers: [DialogService],

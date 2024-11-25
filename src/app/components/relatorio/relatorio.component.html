@@ -15,7 +15,7 @@
     <!-- Coluna com a árvore de pastas e arquivos -->
     <div class="col-md-4">
       <p-tree [value]="files" selectionMode="single" [(selection)]="selectedFile"
-      (onNodeSelect)="aoSelecionarNo($event)" (onNodeExpand)="lidarComSelecaoDeNo($event)"
+      (onNodeSelect)="aoSelecionarNo($event)"
       class="w-full p-tree-custom"
       [style]="{'max-height': '500px', 'overflow-y': 'auto', 'width': '300px'}">
 

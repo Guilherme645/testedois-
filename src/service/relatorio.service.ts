@@ -12,82 +12,126 @@ export class RelatorioService {
 
   constructor(private http: HttpClient) {}
 
-  // Enviar um arquivo para um diretório específico no servidor
+  /**
+   * Envia um arquivo para um diretório específico no servidor.
+   * @param arquivo Arquivo a ser enviado.
+   * @param caminhoDiretorio Caminho do diretório.
+   */
   enviarArquivoParaDiretorio(arquivo: File, caminhoDiretorio: string): Observable<any> {
     const formData = new FormData();
-    formData.append('file', arquivo); // Adiciona o arquivo ao formulário
-    formData.append('path', caminhoDiretorio); // Adiciona o caminho do diretório
-    return this.http.post(`${this.apiUrl}/report/upload`, formData)
-      .pipe(catchError(this.tratarErro)); // Trata erros na requisição
+    formData.append('file', arquivo);
+    formData.append('path', caminhoDiretorio);
+
+    return this.http.post(`${this.apiUrl}/report/upload`, formData).pipe(
+      catchError(this.tratarErro)
+    );
   }
 
-  // Enviar um arquivo para o servidor (sem diretório específico)
+  /**
+   * Envia um arquivo para o servidor sem especificar o diretório.
+   * @param arquivo Arquivo a ser enviado.
+   */
   enviarArquivo(arquivo: File): Observable<any> {
     const formData = new FormData();
-    formData.append('file', arquivo); // Adiciona o arquivo ao formulário
+    formData.append('file', arquivo);
 
-    return this.http.post(`${this.apiUrl}/report/upload`, formData, { responseType: 'text' })
-      .pipe(catchError(this.tratarErro)); // Trata erros na requisição
+    return this.http.post(`${this.apiUrl}/report/upload`, formData, { responseType: 'text' }).pipe(
+      catchError(this.tratarErro)
+    );
   }
 
-  // Obter a lista de diretórios iniciais disponíveis
+  /**
+   * Obtém a lista de diretórios iniciais disponíveis.
+   */
   obterDiretoriosIniciais(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/explorer/directories`);
+    return this.http.get<any[]>(`${this.apiUrl}/explorer/directories`).pipe(
+      catchError(this.tratarErro)
+    );
   }
 
-  // Obter o conteúdo (arquivos e subpastas) de um diretório específico
+  /**
+   * Obtém o conteúdo (arquivos e subpastas) de um diretório específico.
+   * @param caminho Caminho do diretório.
+   */
   obterConteudoDoDiretorio(caminho: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/explorer/list?path=${caminho}`)
-      .pipe(catchError(this.tratarErro)); // Trata erros na requisição
+    return this.http.get<any[]>(`${this.apiUrl}/explorer/list?path=${caminho}`).pipe(
+      catchError(this.tratarErro)
+    );
   }
 
-  // Gerar um arquivo JSON com base nos dados de um diretório específico
+  /**
+   * Gera um arquivo JSON com base nos dados de um diretório específico.
+   * @param diretorio Caminho do diretório.
+   * @param nomePasta Nome da pasta.
+   */
   gerarJson(diretorio: string, nomePasta: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/report/generate-json`, {
-        directoryName: `${diretorio}/${nomePasta}` // Envia o nome do diretório completo
-    })
-    .pipe(catchError(this.tratarErro)); // Trata erros na requisição
+    return this.http.post(`${this.apiUrl}/report/generate-json`, { directoryName: `${diretorio}/${nomePasta}` }).pipe(
+      catchError(this.tratarErro)
+    );
   }
 
-  // Listar todos os diretórios disponíveis
+  /**
+   * Lista todos os diretórios disponíveis no servidor.
+   */
   listarDiretorios(): Observable<any> {
-    console.log('Chamando a API para listar diretórios');
-    return this.http.get<any>(`${this.apiUrl}/explorer/directories`);
+    return this.http.get<any>(`${this.apiUrl}/explorer/directories`).pipe(
+      catchError(this.tratarErro)
+    );
   }
 
-  // Listar o conteúdo (arquivos e subpastas) de uma pasta específica
+  /**
+   * Lista o conteúdo (arquivos e subpastas) de uma pasta específica.
+   * @param caminho Caminho da pasta.
+   */
   listarConteudoDaPasta(caminho: string): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/explorer/list`, { params: { path: caminho } })
-      .pipe(catchError(this.tratarErro)); // Trata erros na requisição
+    return this.http.get<any>(`${this.apiUrl}/explorer/list`, { params: { path: caminho } }).pipe(
+      catchError(this.tratarErro)
+    );
   }
 
-  // Manipulador genérico de erros de requisição HTTP
-  private tratarErro(erro: HttpErrorResponse) {
-    let mensagemErro = 'Erro desconhecido!';
-    if (erro.error instanceof ErrorEvent) {
-      // Erro do lado do cliente (navegador)
-      mensagemErro = `Erro: ${erro.error.message}`;
-    } else {
-      // Erro do lado do servidor
-      mensagemErro = `Erro ${erro.status}: ${erro.message}`;
-    }
-    return throwError(mensagemErro); // Retorna o erro para quem chamou o método
-  }
-
-  // Criar uma nova pasta no servidor
+  /**
+   * Cria uma nova pasta no servidor.
+   * @param nomePasta Nome da nova pasta.
+   */
   criarPasta(nomePasta: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/explorer/create-directory`, nomePasta)
-      .pipe(catchError(this.tratarErro)); // Trata erros na requisição
+    return this.http.post(`${this.apiUrl}/explorer/create-directory`, nomePasta).pipe(
+      catchError(this.tratarErro)
+    );
   }
 
+ /**
+   * Gera um relatório PDF com base em um diretório específico.
+   * @param directory Caminho do diretório.
+   * @param action Ação a ser realizada ('v' para visualizar ou 'd' para download).
+   */
   gerarRelatorio(directory: string, action: string): Observable<Blob> {
-    const requestBody = {
-      directory: directory,
-      action: action
-    };
-    return this.http.post(`${this.apiUrl}/report/generate-report`, requestBody, {
-      responseType: 'blob'
-    }).pipe(catchError(this.tratarErro));
+    const requestBody = { directory, action };
+
+    return this.http.post<Blob>(`${this.apiUrl}/report/generate-report`, requestBody, {
+      responseType: 'blob' as 'json'
+    }).pipe(
+      catchError((erro: HttpErrorResponse) => {
+        const mensagemErro =
+          erro.error instanceof ErrorEvent
+            ? `Erro no cliente: ${erro.error.message}`
+            : `Erro no servidor ${erro.status}: ${erro.message}`;
+        console.error(`Erro ao gerar relatório: ${mensagemErro}`);
+        return throwError(mensagemErro);
+      })
+    );
   }
 
+  /**
+   * Manipulador genérico de erros nas requisições HTTP.
+   * @param erro Objeto de erro recebido na requisição.
+   */
+  private tratarErro(erro: HttpErrorResponse): Observable<never> {
+    const mensagemErro =
+      erro.error instanceof ErrorEvent
+        ? `Erro: ${erro.error.message}` // Erro do lado do cliente
+        : `Erro ${erro.status}: ${erro.message}`; // Erro do lado do servidor
+
+    console.error(mensagemErro);
+    return throwError(mensagemErro);
+  }
 }

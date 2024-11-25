@@ -25,8 +25,13 @@
 
   <div class="buttons-container">
     <div class="buttons-group">
-      <button pButton type="button" label="Visualizar Relatório" (click)="gerarRelatorio('diretorio_exemplo', 'v')"></button>
-      <button pButton type="button" label="Baixar Relatório" (click)="gerarRelatorio('diretorio_exemplo', 'd')"></button>
+    <button pButton type="button" label="Visualizar Relatório" class="p-button-info" 
+        (click)="baixarOuVisualizarRelatorio('funcionarios', 'v')">
+</button>
+
+<button pButton type="button" label="Baixar Relatório" class="p-button-success" 
+        (click)="baixarOuVisualizarRelatorio('funcionarios', 'd')">
+</button>
       
       <button pButton label="Salvar" icon="pi pi-save" class="button-red"></button>
       <button pButton label="Gerar" icon="pi pi-cog" class="button-red"></button>

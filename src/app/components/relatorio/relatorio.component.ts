@@ -5,9 +5,9 @@ import { MenuItem, TreeNode } from 'primeng/api'; // Componentes do PrimeNG usad
 import { Dialog } from 'primeng/dialog'; // Componente do PrimeNG usado para exibir modais (janelas flutuantes)
 
 @Component({
-  selector: 'app-relatorio', // Identificador do componente
-  templateUrl: './relatorio.component.html', // Arquivo HTML que define a interface gráfica
-  styleUrls: ['./relatorio.component.css'], // Arquivo CSS que define o estilo do componente
+  selector: 'app-relatorio',
+  templateUrl: './relatorio.component.html',
+  styleUrls: ['./relatorio.component.css'],
 })
 export class RelatorioComponent implements OnInit {
   @ViewChild('dialog') dialog: Dialog | undefined;
@@ -20,6 +20,7 @@ export class RelatorioComponent implements OnInit {
   jsonResult: any = null;
   showJson: boolean = false;
   filesInDirectory: any[] = [];
+  hiddenFiles: any[] = []; // Armazena os arquivos ocultos
   selectedUploadFile: File | null = null;
   uploadError: string | null = null;
   errorMessage: string | null = null;
@@ -27,15 +28,134 @@ export class RelatorioComponent implements OnInit {
   selectedJsonData: any;
   viewMode: string = 'list';
   selectedRowIndex: number | null = null;
-  constructor(private relatorioService: RelatorioService) {} // Injeta o serviço para gerenciar diretórios e arquivos
 
-  // Método chamado assim que o componente é carregado
+  constructor(private relatorioService: RelatorioService) {}
+
   ngOnInit() {
-    this.inicializarMenu(); // Configura o menu superior
-    this.carregarDiretorios(); // Carrega os diretórios iniciais
+    this.inicializarMenu();
+    this.carregarDiretorios();
   }
 
-  // Quando um arquivo é selecionado na tabela, tenta gerar o JSON correspondente
+  inicializarMenu() {
+    this.items = [
+      { label: 'Nova Pasta', icon: 'pi pi-plus', command: () => this.criarNovaPasta() },
+      { label: 'Excluir', icon: 'pi pi-times', command: () => this.excluirPasta() },
+      { label: 'Carregar novo relatório (ZIP)', icon: 'pi pi-file-plus', command: () => this.dispararEntradaArquivo() },
+      { label: 'Lista', icon: 'pi pi-list', command: () => this.toggleView('list') },
+      { label: 'Ícones', icon: 'pi pi-th-large', command: () => this.toggleView('icons') },
+    ];
+  }
+
+  toggleView(mode: string) {
+    this.viewMode = mode;
+  }
+
+  carregarDiretorios() {
+    this.relatorioService.obterConteudoDoDiretorio('').subscribe({
+      next: (data) => {
+        console.log('Dados carregados:', data);
+        this.files = this.transformarParaTreeNodes(data); // Atualiza a árvore com apenas pastas
+      },
+      error: (error: HttpErrorResponse) => {
+        this.errorMessage = 'Erro ao carregar diretórios.';
+        console.error('Erro ao carregar diretórios:', error);
+      },
+    });
+  }
+
+  excluirPasta() {
+    // Método de exclusão de pastas (a ser implementado conforme necessário)
+  }
+
+  transformarParaTreeNodes(data: any[]): TreeNode[] {
+    return data
+      .filter((item: any) => item.data.tipo === 'Pasta de arquivos') // Filtra apenas pastas
+      .map((item: any) => ({
+        label: item.label,
+        data: item.data,
+        leaf: !item.children || item.children.length === 0, // Nó folha se não houver filhos
+        children: item.children ? this.transformarParaTreeNodes(item.children) : [], // Recursão para filhos
+      }));
+  }
+
+  carregarArquivosParaDiretorio(diretorio: string) {
+    this.relatorioService.listarConteudoDaPasta(diretorio).subscribe({
+      next: (arquivos: any[]) => {
+        this.hiddenFiles = arquivos.filter((item) => item.tipo !== 'Pasta de arquivos'); // Oculta arquivos
+        this.filesInDirectory = arquivos.filter((item) => item.tipo === 'Pasta de arquivos');
+        console.log('Arquivos ocultos da pasta selecionada:', this.hiddenFiles);
+        console.log('Pastas carregadas:', this.filesInDirectory);
+      },
+      error: (error: HttpErrorResponse) => {
+        console.error('Erro ao carregar arquivos:', error);
+      },
+    });
+  }
+
+  aoSelecionarNo(event: any) {
+    const node = event.node;
+    this.selectedDirectory = node.data.nome; // Obtém o nome da pasta selecionada
+    console.log('Diretório selecionado:', this.selectedDirectory);
+    if (this.selectedDirectory) {
+      // Chama o serviço para listar o conteúdo da pasta
+      this.relatorioService.listarConteudoDaPasta(this.selectedDirectory).subscribe({
+        next: (arquivos: any[]) => {
+          // Atualiza a lista de subpastas e arquivos na tabela
+          this.filesInDirectory = arquivos;
+          console.log('Subpastas e arquivos:', this.filesInDirectory);
+        },
+        error: (error: HttpErrorResponse) => {
+          console.error('Erro ao carregar arquivos e subpastas:', error);
+        },
+      });
+    }
+  }
+
+  criarNovaPasta() {
+    const folderName = prompt('Digite o nome da nova pasta:');
+    if (folderName) {
+      this.relatorioService.criarPasta(folderName).subscribe({
+        next: (response) => {
+          console.log('Nova pasta criada:', response);
+          this.carregarDiretorios();
+        },
+        error: (error) => {
+          console.error('Erro ao criar a pasta:', error);
+        },
+      });
+    }
+  }
+
+  enviarArquivo(event: any) {
+    const file = event.target.files[0];
+    if (file && this.selectedDirectory) {
+      this.enviarArquivoParaDiretorio(file, this.selectedDirectory);
+    } else {
+      console.error('Nenhum arquivo ou diretório selecionado');
+    }
+  }
+
+  enviarArquivoParaDiretorio(arquivo: File, caminhoDiretorio: string): void {
+    if (arquivo && caminhoDiretorio) {
+      this.relatorioService.enviarArquivoParaDiretorio(arquivo, caminhoDiretorio).subscribe({
+        next: (response) => {
+          console.log('Arquivo carregado com sucesso:', response);
+          this.carregarArquivosParaDiretorio(caminhoDiretorio);
+        },
+        error: (error) => {
+          console.error('Erro ao carregar o arquivo:', error);
+        },
+      });
+    } else {
+      console.error('Arquivo ou diretório não especificados.');
+    }
+  }
+
+  dispararEntradaArquivo() {
+    const fileInput = document.getElementById('fileInput') as HTMLElement;
+    fileInput.click();
+  }
+
   selecionarArquivo(arquivo: any, rowIndex: number): void {
     this.selectedRowIndex = rowIndex;
     console.log('Arquivo selecionado na tabela:', arquivo);
@@ -46,74 +166,6 @@ export class RelatorioComponent implements OnInit {
     }
   }
 
-
-  
-
-  // Após a interface ser totalmente carregada, maximiza o modal de diálogo, se existir
-  ngAfterViewInit() {
-    if (this.dialog) {
-      this.dialog.maximize();
-    }
-  }
-
-  excluirPasta(){
-
-  }
-
-  // Configura o menu superior com as opções de criar pasta, excluir e carregar arquivo
-  inicializarMenu() {
-    this.items = [
-      { label: 'Nova Pasta', icon: 'pi pi-plus', command: () => this.criarNovaPasta() },
-      { label: 'Excluir', icon: 'pi pi-times', command: () => this.excluirPasta() },
-      { label: 'Carregar novo relatório (ZIP)', icon: 'pi pi-file-plus', command: () => this.dispararEntradaArquivo() },
-      { label: 'Lista', icon: ' pi pi-list', command: () => this.toggleView('list')},
-      { label: 'Ícones',icon: ' pi pi-th-large', command: () => this.toggleView('icons')}
-    ];
-  }
-
-toggleView(mode: string) {
-    this.viewMode = mode;
-  }
-  // Carrega a lista de diretórios do sistema
-  carregarDiretorios() {
-    this.relatorioService.obterConteudoDoDiretorio('').subscribe({
-      next: (data) => {
-        console.log('Diretórios carregados:', data);
-        this.files = data; // Atualiza a árvore de diretórios
-      },
-      error: (error) => {
-        this.errorMessage = 'Erro ao carregar diretórios';
-        console.error('Erro ao carregar diretórios', error);
-      },
-    });
-  }
-
-  // Carrega os arquivos de um diretório específico selecionado na árvore
-  carregarArquivosParaDiretorio(diretorio: string) {
-    this.relatorioService.listarConteudoDaPasta(diretorio).subscribe({
-      next: (arquivos: any[]) => {
-        this.filesInDirectory = arquivos; // Exibe os arquivos na tabela
-        console.log('Arquivos na pasta selecionada:', this.filesInDirectory);
-      },
-      error: (error: HttpErrorResponse) => {
-        console.error('Erro ao carregar arquivos:', error);
-      },
-    });
-  }
-
-  // Quando um nó (diretório ou arquivo) é selecionado na árvore
-  aoSelecionarNo(event: any) {
-    const node = event.node;
-    this.selectedDirectory = node.label; // Atualiza o diretório selecionado
-    console.log('Diretório selecionado:', this.selectedDirectory);
-    if (this.selectedDirectory) {
-      this.carregarArquivosParaDiretorio(this.selectedDirectory); // Exibe os arquivos no diretório
-    } else {
-      console.error('Nenhum diretório selecionado');
-    }
-  }
-
-  // Gera JSON com base no diretório e nome da pasta
   lidarComSelecaoDeNo(event: any) {
     const node = event.node;
     this.selectedDirectory = node.label;
@@ -132,7 +184,6 @@ toggleView(mode: string) {
     }
   }
 
-  // Abre o modal para mostrar o relatório de um arquivo
   abrirDialogoRelatorio(arquivo: any) {
     console.log('Arquivo selecionado:', arquivo);
     const folderName = arquivo.name || arquivo.label;
@@ -140,7 +191,7 @@ toggleView(mode: string) {
     if (directory && folderName) {
       this.relatorioService.gerarJson(directory, folderName).subscribe({
         next: (jsonResponse) => {
-          this.selectedJsonData = jsonResponse; // Exibe os dados do JSON no modal
+          this.selectedJsonData = jsonResponse;
           this.displayModal = true;
         },
         error: (error: HttpErrorResponse) => {
@@ -149,54 +200,6 @@ toggleView(mode: string) {
       });
     } else {
       console.error('Diretório ou nome da pasta não especificado.');
-    }
-  }
-
-  // Cria uma nova pasta no diretório atual
-  criarNovaPasta() {
-    const folderName = prompt('Digite o nome da nova pasta:'); // Pede o nome da nova pasta ao usuário
-    if (folderName) {
-      this.relatorioService.criarPasta(folderName).subscribe({
-        next: (response) => {
-          console.log('Nova pasta criada:', response);
-          this.carregarDiretorios(); // Atualiza a lista de diretórios
-        },
-        error: (error) => {
-          console.error('Erro ao criar a pasta:', error);
-        },
-      });
-    }
-  }
-
-  // Envia um arquivo para upload no diretório selecionado
-  enviarArquivo(event: any) {
-    const file = event.target.files[0];
-    if (file && this.selectedDirectory) {
-      this.enviarArquivoParaDiretorio(file, this.selectedDirectory); // Faz o upload
-    } else {
-      console.error('Nenhum arquivo ou diretório selecionado');
-    }
-  }
-
-  dispararEntradaArquivo() {
-    const fileInput = document.getElementById('fileInput') as HTMLElement;
-    fileInput.click();
-  }
-
-  // Carrega um arquivo e exibe os dados no modal
-  enviarArquivoParaDiretorio(arquivo: File, caminhoDiretorio: string): void {
-    if (arquivo && caminhoDiretorio) {
-      this.relatorioService.enviarArquivoParaDiretorio(arquivo, caminhoDiretorio).subscribe({
-        next: (response) => {
-          console.log('Arquivo carregado com sucesso:', response);
-          this.carregarArquivosParaDiretorio(caminhoDiretorio); // Atualiza os arquivos no diretório
-        },
-        error: (error) => {
-          console.error('Erro ao carregar o arquivo:', error);
-        },
-      });
-    } else {
-      console.error('Arquivo ou diretório não especificados.');
     }
   }
 }
