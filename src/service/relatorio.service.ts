@@ -104,8 +104,8 @@ export class RelatorioService {
    * @param directory Caminho do diretório.
    * @param action Ação a ser realizada ('v' para visualizar ou 'd' para download).
    */
- gerarRelatorio(directory: string, subDirectory: string, action: string): Observable<Blob> {
-  const requestBody = { directory, subDirectory, action };
+ gerarRelatorio(subDirectory: string, directory: string,  action: string): Observable<Blob> {
+  const requestBody = {subDirectory, directory,  action };
 
   return this.http.post<Blob>(`${this.apiUrl}/report/generate-report`, requestBody, {
     responseType: 'blob' as 'json',

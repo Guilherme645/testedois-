@@ -1,6 +1,8 @@
-import { Component, OnChanges, Input, SimpleChanges } from '@angular/core';
-import { FormGroup, FormBuilder, FormControl } from '@angular/forms';
+import { DirectoryService } from './../../shared/directory.service';
+import { Component, OnInit } from '@angular/core';
+import { FormGroup, FormBuilder } from '@angular/forms';
 import { RelatorioService } from 'src/service/relatorio.service';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 interface Field {
   name: string;
@@ -19,42 +21,68 @@ interface JsonData {
 @Component({
   selector: 'app-GerarRelatorio',
   templateUrl: './GerarRelatorio.component.html',
-  styleUrls: ['./GerarRelatorio.component.css']
+  styleUrls: ['./GerarRelatorio.component.css'],
 })
-export class GerarRelatorioComponent {
-  @Input() jsonData: JsonData | null = null; // Dados do JSON recebidos como entrada
+export class GerarRelatorioComponent implements OnInit {
+  jsonData: JsonData | null = null; // Dados do JSON recebidos como entrada
   jsonForm: FormGroup; // Formulário para os parâmetros do relatório
-  selectedDirectory: string = ''; // Diretório selecionado
   selectedAction: string = ''; // Ação selecionada ('v' para visualizar ou 'd' para download)
-  selectedSubDirectory: string | null = null;
+  selectedDirectory: string = ''; // Diretório recebido do DirectoryService
+  selectedSubDirectory: string = ''; // Subdiretório recebido do DirectoryService
+  displayPdfModal: boolean = false; // Controla a exibição do modal
+  pdfUrl: SafeResourceUrl | null = null;
 
-  constructor(private relatorioService: RelatorioService, private fb: FormBuilder) {
+  constructor(
+    private relatorioService: RelatorioService,
+    private fb: FormBuilder,
+    private directoryService: DirectoryService,
+    private sanitizer: DomSanitizer
+  ) {
     this.jsonForm = this.fb.group({});
+  }
+
+  ngOnInit(): void {
+    this.directoryService.directorySelected$.subscribe({
+      next: (selected) => {
+        // Corrigir a captura do diretório e subdiretório
+        this.selectedDirectory = selected.directory;
+        this.selectedSubDirectory = selected.subDirectory;
+        console.log('Recebido no GerarRelatorioComponent:', selected);
+      },
+      error: (error) => {
+        console.error('Erro ao receber evento de diretório:', error);
+      },
+    });
   }
 
   /**
    * Baixar ou visualizar o relatório baseado no diretório selecionado e ação.
-   * @param directory Diretório do relatório.
    * @param action Ação ('v' para visualizar, 'd' para download).
    */
-  baixarOuVisualizarRelatorio(directory: string, subDirectory: string, action: string): void {
-    if (!directory || !subDirectory) {
-      alert('Selecione um diretório e subdiretório antes de continuar.');
+  baixarOuVisualizarRelatorio(action: string): void {
+    if (!this.selectedDirectory || !this.selectedSubDirectory) {
+      alert('Tanto o diretório quanto o subdiretório são obrigatórios.');
       return;
     }
-  
-    this.relatorioService.gerarRelatorio(directory, subDirectory, action).subscribe({
+
+    // Faz a chamada para gerar o relatório
+    this.relatorioService.gerarRelatorio(
+      this.selectedDirectory,
+      this.selectedSubDirectory,
+      action
+    ).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
-  
+
         if (action === 'v') {
-          // Abrir relatório no navegador
-          window.open(url, '_blank');
+          const blobUrl = window.URL.createObjectURL(blob);
+          this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(blobUrl); // Torna a URL segura
+          this.displayPdfModal = true;
         } else if (action === 'd') {
-          // Baixar relatório como arquivo
+          // Faz o download do arquivo
           const a = document.createElement('a');
           a.href = url;
-          a.download = `${directory}_${subDirectory}.pdf`;
+          a.download = `${this.selectedDirectory}_${this.selectedSubDirectory}.pdf`;
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
@@ -66,22 +94,8 @@ export class GerarRelatorioComponent {
       },
     });
   }
-
-  /**
-   * Atualiza o diretório selecionado.
-   * @param directory Nome do diretório.
-   */
-
-  aoSelecionarNo(event: any) {
-    const node = event.node;
   
-    if (node) {
-      this.selectedDirectory = node.parent?.data?.nome || null; // Define o diretório principal
-      this.selectedSubDirectory = node.data.nome || null; // Define o subdiretório
-      console.log('Diretório selecionado:', this.selectedDirectory);
-      console.log('Subdiretório selecionado:', this.selectedSubDirectory);
-    }
-  }
+
   /**
    * Obtém as chaves dos parâmetros do JSON.
    * @param parameters Parâmetros do JSON.
@@ -97,6 +111,6 @@ export class GerarRelatorioComponent {
    * @returns Placeholder formatado.
    */
   getPlaceholder(key: string): string {
-    return key.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+    return key.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
   }
 }

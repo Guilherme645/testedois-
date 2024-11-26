@@ -1,8 +1,9 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, Output,ViewChild, EventEmitter } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RelatorioService } from 'src/service/relatorio.service'; // Serviço que lida com dados de arquivos e diretórios
 import { MenuItem, TreeNode } from 'primeng/api'; // Componentes do PrimeNG usados no menu e na árvore de pastas
 import { Dialog } from 'primeng/dialog'; // Componente do PrimeNG usado para exibir modais (janelas flutuantes)
+import { DirectoryService } from 'src/app/shared/directory.service';
 
 @Component({
   selector: 'app-relatorio',
@@ -15,6 +16,7 @@ export class RelatorioComponent implements OnInit {
   items: MenuItem[] | undefined;
   selectedFileName: string | null = null;
   selectedDirectory: string = '';
+  selectedSubDirectory: string = '';
   files: TreeNode<any>[] = [];
   selectedFile: TreeNode<any> | TreeNode<any>[] | null = null;
   jsonResult: any = null;
@@ -28,8 +30,9 @@ export class RelatorioComponent implements OnInit {
   selectedJsonData: any;
   viewMode: string = 'list';
   selectedRowIndex: number | null = null;
+  @Output() directorySelected = new EventEmitter<{ directory: string; subDirectory: string }>();
 
-  constructor(private relatorioService: RelatorioService) {}
+  constructor(private relatorioService: RelatorioService, private directoryService: DirectoryService) {}
 
   ngOnInit() {
     this.inicializarMenu();
@@ -92,23 +95,56 @@ export class RelatorioComponent implements OnInit {
     });
   }
 
-  aoSelecionarNo(event: any) {
+aoSelecionarNo(event: any): void {
     const node = event.node;
-    this.selectedDirectory = node.data.nome; // Obtém o nome da pasta selecionada
-    console.log('Diretório selecionado:', this.selectedDirectory);
-    if (this.selectedDirectory) {
-      // Chama o serviço para listar o conteúdo da pasta
-      this.relatorioService.listarConteudoDaPasta(this.selectedDirectory).subscribe({
-        next: (arquivos: any[]) => {
-          // Atualiza a lista de subpastas e arquivos na tabela
-          this.filesInDirectory = arquivos;
-          console.log('Subpastas e arquivos:', this.filesInDirectory);
-        },
-        error: (error: HttpErrorResponse) => {
-          console.error('Erro ao carregar arquivos e subpastas:', error);
-        },
-      });
+
+    // Verifica se o nó tem um pai, ou seja, se é um subdiretório
+    if (node.parent) {
+        // Diretório principal (pai do nó)
+        this.selectedDirectory = node.parent.data.nome;
+        // Subdiretório (o nó atual)
+        this.selectedSubDirectory = node.data.nome;
+    } else {
+        // Caso seja um nó de diretório sem subdiretório, exibe alerta
+        alert('Selecione um subdiretório válido.');
+        console.error('Erro: Subdiretório é obrigatório.');
+        return; // Sai da função, pois não há subdiretório
     }
+
+    console.log('Diretório selecionado:', this.selectedDirectory);
+    console.log('Subdiretório selecionado:', this.selectedSubDirectory);
+
+    // Emite os valores para o serviço (envia apenas se ambos forem válidos)
+    if (this.selectedDirectory && this.selectedSubDirectory) {
+        this.directoryService.emitDirectorySelected({
+            directory: this.selectedDirectory,
+            subDirectory: this.selectedSubDirectory,
+        });
+
+        console.log('Evento emitido pelo serviço:', {
+            directory: this.selectedDirectory,
+            subDirectory: this.selectedSubDirectory,
+        });
+
+        // Atualiza a lista de arquivos/subpastas
+        this.relatorioService.listarConteudoDaPasta(this.selectedDirectory).subscribe({
+            next: (arquivos: any[]) => {
+                this.filesInDirectory = arquivos;
+                console.log('Arquivos e subpastas carregados:', this.filesInDirectory);
+            },
+            error: (error: HttpErrorResponse) => {
+                console.error('Erro ao carregar arquivos e subpastas:', error);
+            },
+        });
+    } else {
+        alert('Tanto o diretório quanto o subdiretório são obrigatórios.');
+    }
+}
+
+
+  onDirectorySelected(event: { directory: string; subDirectory: string }): void {
+    console.log('Diretório selecionado:', event.directory);
+    console.log('Subdiretório selecionado:', event.subDirectory);
   }
 
   criarNovaPasta() {
