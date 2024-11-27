@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 import { environment } from 'src/app/environments';
 
 @Injectable({
@@ -65,10 +65,14 @@ export class RelatorioService {
    * @param nomePasta Nome da pasta.
    */
   gerarJson(diretorio: string, nomePasta: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/report/generate-json`, { directoryName: `${diretorio}/${nomePasta}` }).pipe(
+    const directoryName = `${diretorio}/${nomePasta}`;
+    console.log('Enviando para o backend:', directoryName);
+    return this.http.post(`${this.apiUrl}/report/generate-json`, { directoryName }).pipe(
+      tap((response) => console.log('Resposta recebida do backend:', response)),
       catchError(this.tratarErro)
     );
   }
+  
 
   /**
    * Lista todos os diretórios disponíveis no servidor.

@@ -23,17 +23,19 @@ import { MenuBarComponent } from './components/menu-bar/menu-bar.component';
 import { TreeComponent } from './components/tree/tree.component';
 import { GerarRelatorioComponent } from './components/GerarRelatorio/GerarRelatorio.component';
 import { CriarPastaComponent } from './components/criarPasta/criarPasta.component';
+import { PdfComponent } from './pdf/pdf.component';
 
 
 @NgModule({
-  declarations: [
+  declarations: [	
     AppComponent,
     RelatorioComponent,
     GerarRelatorioComponent,
     MenuBarComponent,
     TreeComponent,
-    CriarPastaComponent
-  ],
+    CriarPastaComponent,
+      PdfComponent
+   ],
   imports: [
     BrowserModule,
     FormsModule,

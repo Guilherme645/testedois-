@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { RelatorioService } from 'src/service/relatorio.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { HttpErrorResponse } from '@angular/common/http';
 
 interface Field {
   name: string;
@@ -44,10 +45,12 @@ export class GerarRelatorioComponent implements OnInit {
   ngOnInit(): void {
     this.directoryService.directorySelected$.subscribe({
       next: (selected) => {
-        // Corrigir a captura do diretório e subdiretório
         this.selectedDirectory = selected.directory;
         this.selectedSubDirectory = selected.subDirectory;
         console.log('Recebido no GerarRelatorioComponent:', selected);
+  
+        // Carregar os parâmetros do relatório selecionado
+        this.carregarParametrosJson();
       },
       error: (error) => {
         console.error('Erro ao receber evento de diretório:', error);
@@ -55,6 +58,40 @@ export class GerarRelatorioComponent implements OnInit {
     });
   }
 
+// Novo método para carregar os parâmetros do JSON
+carregarParametrosJson(): void {
+  if (this.selectedDirectory && this.selectedSubDirectory) {
+    this.relatorioService.gerarJson(this.selectedDirectory, this.selectedSubDirectory).subscribe({
+      next: (jsonResponse) => {
+        console.log('JSON carregado com sucesso:', jsonResponse);
+        this.jsonData = jsonResponse;
+        this.atualizarFormulario(); // Atualizar o formulário
+      },
+      error: (error: HttpErrorResponse) => {
+        console.error('Erro ao carregar JSON:', error);
+      },
+    });
+  } else {
+    console.error('Diretório ou subdiretório não especificados.');
+  }
+}
+// Atualizar o formulário com os parâmetros do JSON
+atualizarFormulario(): void {
+  if (this.jsonData && this.jsonData.parameters) {
+    const controls = Object.keys(this.jsonData.parameters).reduce((acc: { [key: string]: any }, key: string) => {
+      // Garante que jsonData.parameters[key] seja acessível e tenha o valor esperado
+      const parameterValue = this.jsonData?.parameters[key] ?? '';
+      acc[key] = [parameterValue];
+      return acc;
+    }, {});
+
+    // Atualiza o formulário com os controles gerados
+    this.jsonForm = this.fb.group(controls);
+    console.log('Formulário atualizado com os parâmetros:', this.jsonForm.value);
+  } else {
+    console.error('Erro: Nenhum dado JSON ou parâmetros disponíveis.');
+  }
+}
   /**
    * Baixar ou visualizar o relatório baseado no diretório selecionado e ação.
    * @param action Ação ('v' para visualizar, 'd' para download).
@@ -104,7 +141,6 @@ export class GerarRelatorioComponent implements OnInit {
   getParameterKeys(parameters: Parameters | undefined): string[] {
     return parameters ? Object.keys(parameters) : [];
   }
-
   /**
    * Gera um placeholder amigável para os parâmetros baseados na chave.
    * @param key Chave do parâmetro.
@@ -112,5 +148,5 @@ export class GerarRelatorioComponent implements OnInit {
    */
   getPlaceholder(key: string): string {
     return key.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
-  }
+}
 }

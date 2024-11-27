@@ -220,22 +220,23 @@ aoSelecionarNo(event: any): void {
     }
   }
 
-  abrirDialogoRelatorio(arquivo: any) {
-    console.log('Arquivo selecionado:', arquivo);
-    const folderName = arquivo.name || arquivo.label;
+  abrirDialogoRelatorio(file: any): void {
     const directory = this.selectedDirectory;
-    if (directory && folderName) {
-      this.relatorioService.gerarJson(directory, folderName).subscribe({
-        next: (jsonResponse) => {
-          this.selectedJsonData = jsonResponse;
-          this.displayModal = true;
-        },
-        error: (error: HttpErrorResponse) => {
-          console.error('Erro ao gerar JSON:', error);
-        },
+    const subDirectory = file.data.nome;
+  
+    if (directory && subDirectory) {
+      // Emitir evento para o DirectoryService
+      this.directoryService.emitDirectorySelected({
+        directory,
+        subDirectory,
       });
+  
+      console.log('Evento emitido para o DirectoryService:', { directory, subDirectory });
+  
+      // Exibir o modal
+      this.displayModal = true;
     } else {
-      console.error('Diretório ou nome da pasta não especificado.');
+      console.error('Diretório ou subdiretório não especificados.');
     }
   }
 }
