@@ -108,20 +108,31 @@ export class RelatorioService {
    * @param directory Caminho do diretório.
    * @param action Ação a ser realizada ('v' para visualizar ou 'd' para download).
    */
- gerarRelatorio(subDirectory: string, directory: string,  action: string): Observable<Blob> {
-  const requestBody = {subDirectory, directory,  action };
+ gerarRelatorio(
+  subDirectory: string,
+  directory: string,
+  action: string,
+  additionalParams: { [key: string]: any } = {}
+): Observable<Blob> {
+  // Cria o corpo da requisição com os argumentos obrigatórios e os parâmetros adicionais
+  const requestBody = {
+      subDirectory,
+      directory,
+      action,
+      ...additionalParams, // Adiciona os parâmetros adicionais dinamicamente
+  };
 
   return this.http.post<Blob>(`${this.apiUrl}/report/generate-report`, requestBody, {
-    responseType: 'blob' as 'json',
+      responseType: 'blob' as 'json', // Define a resposta como um arquivo PDF
   }).pipe(
-    catchError((erro: HttpErrorResponse) => {
-      const mensagemErro =
-        erro.error instanceof ErrorEvent
-          ? `Erro no cliente: ${erro.error.message}`
-          : `Erro no servidor ${erro.status}: ${erro.message}`;
-      console.error(`Erro ao gerar relatório: ${mensagemErro}`);
-      return throwError(mensagemErro);
-    })
+      catchError((erro: HttpErrorResponse) => {
+          const mensagemErro =
+              erro.error instanceof ErrorEvent
+                  ? `Erro no cliente: ${erro.error.message}`
+                  : `Erro no servidor ${erro.status}: ${erro.message}`;
+          console.error(`Erro ao gerar relatório: ${mensagemErro}`);
+          return throwError(mensagemErro);
+      })
   );
 }
 

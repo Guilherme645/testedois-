@@ -97,33 +97,34 @@ atualizarFormulario(): void {
    * @param action Ação ('v' para visualizar, 'd' para download).
    */
   baixarOuVisualizarRelatorio(action: string): void {
+    // Validação dos diretórios obrigatórios
     if (!this.selectedDirectory || !this.selectedSubDirectory) {
       alert('Tanto o diretório quanto o subdiretório são obrigatórios.');
       return;
     }
-
-    // Faz a chamada para gerar o relatório
+  
+    // Preparação de parâmetros adicionais
+    const additionalParams: { [key: string]: any } = {};
+    if (this.jsonForm && this.jsonForm.value) {
+      Object.entries(this.jsonForm.value).forEach(([key, value]) => {
+        if (value) {
+          additionalParams[key] = value;
+        }
+      });
+    }
+    console.log('Parâmetros adicionais enviados para o backend:', additionalParams);
+  
+    // Chamada ao serviço para gerar relatório
     this.relatorioService.gerarRelatorio(
       this.selectedDirectory,
       this.selectedSubDirectory,
-      action
+      action, // 'v' para visualizar
+      additionalParams
     ).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
-
-        if (action === 'v') {
-          const blobUrl = window.URL.createObjectURL(blob);
-          this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(blobUrl); // Torna a URL segura
-          this.displayPdfModal = true;
-        } else if (action === 'd') {
-          // Faz o download do arquivo
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `${this.selectedDirectory}_${this.selectedSubDirectory}.pdf`;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-        }
+        this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+        this.displayPdfModal = true; // Exibe o modal
       },
       error: (error) => {
         console.error('Erro ao gerar o relatório:', error);
@@ -131,6 +132,7 @@ atualizarFormulario(): void {
       },
     });
   }
+
   
 
   /**

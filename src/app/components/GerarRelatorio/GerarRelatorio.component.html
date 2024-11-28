@@ -1,25 +1,22 @@
 <form [formGroup]="jsonForm" class="p-fluid form-container">
-  <!-- Grid para os parâmetros do JSON -->
   <div class="p-grid p-formgrid">
-    <!-- Itera sobre as chaves dos parâmetros e cria os campos -->
     <div class="p-col-6" *ngFor="let key of getParameterKeys(jsonData?.parameters)">
       <div class="p-field p-mb-3">
-        <!-- Verifica se o campo é uma data -->
         <ng-container *ngIf="key.toLowerCase().includes('data'); else defaultField">
-          <p-calendar
-            [formControlName]="key"
-            dateFormat="dd/mm/yy"
+          <p-calendar 
+            [formControlName]="key" 
+            dateFormat="mm/dd/yy" 
             [showIcon]="true"
             [appendTo]="'body'"
             [placeholder]="getPlaceholder(key)">
           </p-calendar>
         </ng-container>
-        <!-- Campo padrão -->
+
         <ng-template #defaultField>
-          <input
-            pInputText
-            [formControlName]="key"
-            [type]="jsonData?.parameters?.[key]?.type?.includes('Integer') ? 'number' : 'text'"
+          <input 
+            pInputText 
+            [formControlName]="key" 
+            [type]="jsonData?.parameters?.[key]?.type?.includes('Integer') ? 'number' : 'text'" 
             [placeholder]="getPlaceholder(key)">
         </ng-template>
       </div>
@@ -28,20 +25,20 @@
 
   <!-- Botões de ação -->
   <div class="buttons-container p-mt-3">
-    <button
-      pButton
-      type="button"
-      label="Visualizar Relatório"
-      class="p-button-info p-mr-2"
-      (click)="baixarOuVisualizarRelatorio('v')">
-    </button>
-    <button
-      pButton
-      type="button"
-      label="Baixar Relatório"
-      class="p-button-success p-mr-2"
-      (click)="baixarOuVisualizarRelatorio('d')">
-    </button>
+    <button 
+    pButton 
+    type="button" 
+    label="Visualizar Relatório" 
+    class="p-button-info p-mr-2"
+    (click)="baixarOuVisualizarRelatorio('v')">
+  </button>
+  <button 
+    pButton 
+    type="button" 
+    label="Baixar Relatório" 
+    class="p-button-success p-mr-2"
+    (click)="baixarOuVisualizarRelatorio('d')">
+  </button>
     <button
       pButton
       label="Salvar"
