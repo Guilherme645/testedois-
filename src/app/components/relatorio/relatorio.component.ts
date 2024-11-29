@@ -16,7 +16,7 @@ export class RelatorioComponent implements OnInit {
   items: MenuItem[] | undefined;
   selectedFileName: string | null = null;
   selectedDirectory: string = '';
-  selectedSubDirectory: string = '';
+  selectedSubDirectory: string | null = null;
   files: TreeNode<any>[] = [];
   selectedFile: TreeNode<any> | TreeNode<any>[] | null = null;
   jsonResult: any = null;
@@ -95,30 +95,27 @@ export class RelatorioComponent implements OnInit {
     });
   }
 
-aoSelecionarNo(event: any): void {
+  aoSelecionarNo(event: any): void {
     const node = event.node;
 
-    // Verifica se o nó tem um pai, ou seja, se é um subdiretório
-    if (node.parent) {
-        // Diretório principal (pai do nó)
-        this.selectedDirectory = node.parent.data.nome;
-        // Subdiretório (o nó atual)
-        this.selectedSubDirectory = node.data.nome;
-    } else {
-        // Caso seja um nó de diretório sem subdiretório, exibe alerta
-        alert('Selecione um subdiretório válido.');
-        console.error('Erro: Subdiretório é obrigatório.');
-        return; // Sai da função, pois não há subdiretório
-    }
+    if (node) {
+        // Se o nó tem um pai, trata como subdiretório
+        if (node.parent) {
+            this.selectedDirectory = node.parent.data.nome; // Diretório principal
+            this.selectedSubDirectory = node.data.nome; // Subdiretório
+        } else {
+            // Caso contrário, é uma pasta principal (sem pai)
+            this.selectedDirectory = node.data.nome; // Diretório principal
+            this.selectedSubDirectory = null; // Sem subdiretório
+        }
 
-    console.log('Diretório selecionado:', this.selectedDirectory);
-    console.log('Subdiretório selecionado:', this.selectedSubDirectory);
+        console.log('Diretório selecionado:', this.selectedDirectory);
+        console.log('Subdiretório selecionado:', this.selectedSubDirectory);
 
-    // Emite os valores para o serviço (envia apenas se ambos forem válidos)
-    if (this.selectedDirectory && this.selectedSubDirectory) {
+        // Emite o evento com os valores selecionados
         this.directoryService.emitDirectorySelected({
             directory: this.selectedDirectory,
-            subDirectory: this.selectedSubDirectory,
+            subDirectory:this.selectedSubDirectory = '',
         });
 
         console.log('Evento emitido pelo serviço:', {
@@ -137,7 +134,7 @@ aoSelecionarNo(event: any): void {
             },
         });
     } else {
-        alert('Tanto o diretório quanto o subdiretório são obrigatórios.');
+        console.error('Erro: Nenhum nó selecionado.');
     }
 }
 

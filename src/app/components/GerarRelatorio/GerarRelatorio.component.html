@@ -61,13 +61,15 @@
 
   <!-- Modal para visualização do PDF -->
   <p-dialog
-    [(visible)]="displayPdfModal"
-    header="Visualizar Relatório"
-    [modal]="true"
-    [maximizable]="true"
-    [style]="{width: '100vw', height: '100vh'}"
-    [baseZIndex]="10000"
-    [closable]="true">
+  [(visible)]="displayPdfModal"
+  header="Visualizar Relatório"
+  [modal]="true"
+  [maximizable]="true"
+  [style]="{width: '100vw', height: '100vh'}"
+  [baseZIndex]="10000"
+  [closable]="true"
+  appendTo="body" 
+>
     <ng-container *ngIf="pdfUrl; else noPdfMessage">
       <iframe
         [src]="pdfUrl"
