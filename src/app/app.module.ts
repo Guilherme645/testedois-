@@ -24,6 +24,7 @@ import { TreeComponent } from './components/tree/tree.component';
 import { GerarRelatorioComponent } from './components/GerarRelatorio/GerarRelatorio.component';
 import { CriarPastaComponent } from './components/criarPasta/criarPasta.component';
 import { PdfComponent } from './pdf/pdf.component';
+import { MenuModule } from 'primeng/menu';
 
 
 @NgModule({
@@ -52,7 +53,8 @@ import { PdfComponent } from './pdf/pdf.component';
     AppRoutingModule,
     DynamicDialogModule,
     DialogModule,
-    TooltipModule 
+    TooltipModule,
+    MenuModule 
  
   ],
   providers: [DialogService],

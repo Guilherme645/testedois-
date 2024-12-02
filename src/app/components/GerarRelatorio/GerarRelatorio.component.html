@@ -1,75 +1,69 @@
 <form [formGroup]="jsonForm" class="p-fluid form-container">
   <div class="p-grid p-formgrid">
     <div class="p-col-6" *ngFor="let key of getParameterKeys(jsonData?.parameters)">
-      <div class="p-field p-mb-3">
-        <ng-container *ngIf="key.toLowerCase().includes('data'); else defaultField">
-          <p-calendar 
-            [formControlName]="key" 
-            dateFormat="mm/dd/yy" 
-            [showIcon]="true"
-            [appendTo]="'body'"
-            [placeholder]="getPlaceholder(key)">
-          </p-calendar>
-        </ng-container>
-
-        <ng-template #defaultField>
-          <input 
-            pInputText 
-            [formControlName]="key" 
-            [type]="jsonData?.parameters?.[key]?.type?.includes('Integer') ? 'number' : 'text'" 
-            [placeholder]="getPlaceholder(key)">
-        </ng-template>
-      </div>
+      <!-- Oculta o parâmetro "IMAGE_PATH" -->
+      <ng-container *ngIf="key !== ''">
+        <div class="p-field p-mb-3">
+          <ng-container *ngIf="key.toLowerCase().includes('data'); else defaultField">
+            <p-calendar 
+              [formControlName]="key" 
+              dateFormat="mm/dd/yy" 
+              [showIcon]="true"
+              [appendTo]="'body'"
+              [placeholder]="getPlaceholder(key)">
+            </p-calendar>
+          </ng-container>
+          <ng-template #defaultField>
+            <input 
+              pInputText 
+              [formControlName]="key" 
+              [type]="jsonData?.parameters?.[key]?.type?.includes('Integer') ? 'number' : 'text'" 
+              [placeholder]="getPlaceholder(key)">
+          </ng-template>
+        </div>
+      </ng-container>
     </div>
   </div>
+  
 
   <!-- Botões de ação -->
   <div class="buttons-container p-mt-3">
     <button 
-    pButton 
-    type="button" 
-    label="Visualizar Relatório" 
-    class="p-button-info p-mr-2"
-    (click)="baixarOuVisualizarRelatorio('v')">
-  </button>
-  <button 
-    pButton 
-    type="button" 
-    label="Baixar Relatório" 
-    class="p-button-success p-mr-2"
-    (click)="baixarOuVisualizarRelatorio('d')">
-  </button>
-    <button
-      pButton
-      label="Salvar"
-      icon="pi pi-save"
-      class="button-red">
+      pButton 
+      type="button" 
+      label="Visualizar Relatório" 
+      class="p-button-info p-mr-2"
+      (click)="baixarOuVisualizarRelatorio('v')">
     </button>
-    <button
-      pButton
-      label="Gerar"
-      icon="pi pi-cog"
-      class="button-red">
+    <button 
+      pButton 
+      type="button" 
+      label="Salvar" 
+      class="p-button-success p-mr-2"
+      (click)="baixarOuVisualizarRelatorio('d')">
     </button>
     <button
       pButton
       label="Compartilhar"
       icon="pi pi-share-alt"
-      class="button-red">
+      class="button-red"
+      (click)="menuCompartilhar.toggle($event)">
     </button>
+
+    <!-- Menu de Compartilhamento -->
+    <p-menu #menuCompartilhar [model]="opcoesDeCompartilhamento" [popup]="true" appendTo="body"></p-menu>
   </div>
 
   <!-- Modal para visualização do PDF -->
   <p-dialog
-  [(visible)]="displayPdfModal"
-  header="Visualizar Relatório"
-  [modal]="true"
-  [maximizable]="true"
-  [style]="{width: '100vw', height: '100vh'}"
-  [baseZIndex]="10000"
-  [closable]="true"
-  appendTo="body" 
->
+    [(visible)]="displayPdfModal"
+    header="Visualizar Relatório"
+    [modal]="true"
+    [maximizable]="true"
+    [style]="{width: '100vw', height: '100vh'}"
+    [baseZIndex]="10000"
+    [closable]="true"
+    appendTo="body">
     <ng-container *ngIf="pdfUrl; else noPdfMessage">
       <iframe
         [src]="pdfUrl"

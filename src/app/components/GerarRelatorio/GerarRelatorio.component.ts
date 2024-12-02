@@ -1,7 +1,7 @@
-import { DirectoryService } from './../../shared/directory.service';
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { RelatorioService } from 'src/service/relatorio.service';
+import { DirectoryService } from './../../shared/directory.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -25,13 +25,14 @@ interface JsonData {
   styleUrls: ['./GerarRelatorio.component.css'],
 })
 export class GerarRelatorioComponent implements OnInit {
-  jsonData: JsonData | null = null; // Dados do JSON recebidos como entrada
-  jsonForm: FormGroup; // Formulário para os parâmetros do relatório
-  selectedAction: string = ''; // Ação selecionada ('v' para visualizar ou 'd' para download)
-  selectedDirectory: string = ''; // Diretório recebido do DirectoryService
-  selectedSubDirectory: string = ''; // Subdiretório recebido do DirectoryService
+  jsonData: any | null = null; // JSON com dados do relatório
+  jsonForm: FormGroup; // Formulário para parâmetros
+  selectedDirectory: string = ''; // Diretório selecionado
+  selectedSubDirectory: string = ''; // Subdiretório selecionado
   displayPdfModal: boolean = false; // Controla a exibição do modal
-  pdfUrl: SafeResourceUrl | null = null;
+  pdfUrl: SafeResourceUrl | null = null; // URL segura do PDF
+  linkDoRelatorioGerado: string | null = null; // URL do relatório gerado para compartilhamento
+  opcoesDeCompartilhamento: any[] = []; // Opções de compartilhamento
 
   constructor(
     private relatorioService: RelatorioService,
@@ -47,63 +48,59 @@ export class GerarRelatorioComponent implements OnInit {
       next: (selected) => {
         this.selectedDirectory = selected.directory;
         this.selectedSubDirectory = selected.subDirectory;
-        console.log('Recebido no GerarRelatorioComponent:', selected);
-  
-        // Carregar os parâmetros do relatório selecionado
+        console.log('Diretório selecionado:', selected);
         this.carregarParametrosJson();
       },
       error: (error) => {
         console.error('Erro ao receber evento de diretório:', error);
       },
     });
+
+    this.opcoesDeCompartilhamento = [
+      {
+        label: 'Email',
+        icon: 'pi pi-envelope',
+        command: () => this.compartilharEmail(),
+      },
+    ];
   }
 
-// Novo método para carregar os parâmetros do JSON
-carregarParametrosJson(): void {
-  if (this.selectedDirectory && this.selectedSubDirectory) {
-    this.relatorioService.gerarJson(this.selectedDirectory, this.selectedSubDirectory).subscribe({
-      next: (jsonResponse) => {
-        console.log('JSON carregado com sucesso:', jsonResponse);
-        this.jsonData = jsonResponse;
-        this.atualizarFormulario(); // Atualizar o formulário
-      },
-      error: (error: HttpErrorResponse) => {
-        console.error('Erro ao carregar JSON:', error);
-      },
-    });
-  } else {
-    console.error('Diretório ou subdiretório não especificados.');
+  carregarParametrosJson(): void {
+    if (this.selectedDirectory && this.selectedSubDirectory) {
+      this.relatorioService.gerarJson(this.selectedDirectory, this.selectedSubDirectory).subscribe({
+        next: (jsonResponse) => {
+          console.log('JSON carregado com sucesso:', jsonResponse);
+          this.jsonData = jsonResponse;
+          this.atualizarFormulario();
+        },
+        error: (error: HttpErrorResponse) => {
+          console.error('Erro ao carregar JSON:', error);
+        },
+      });
+    } else {
+      console.error('Diretório ou subdiretório não especificados.');
+    }
   }
-}
-// Atualizar o formulário com os parâmetros do JSON
-atualizarFormulario(): void {
-  if (this.jsonData && this.jsonData.parameters) {
-    const controls = Object.keys(this.jsonData.parameters).reduce((acc: { [key: string]: any }, key: string) => {
-      // Garante que jsonData.parameters[key] seja acessível e tenha o valor esperado
-      const parameterValue = this.jsonData?.parameters[key] ?? '';
-      acc[key] = [parameterValue];
-      return acc;
-    }, {});
 
-    // Atualiza o formulário com os controles gerados
-    this.jsonForm = this.fb.group(controls);
-    console.log('Formulário atualizado com os parâmetros:', this.jsonForm.value);
-  } else {
-    console.error('Erro: Nenhum dado JSON ou parâmetros disponíveis.');
+  atualizarFormulario(): void {
+    if (this.jsonData && this.jsonData.parameters) {
+      const controls = Object.keys(this.jsonData.parameters).reduce((acc: { [key: string]: any }, key: string) => {
+        acc[key] = [''];
+        return acc;
+      }, {});
+      this.jsonForm = this.fb.group(controls);
+      console.log('Formulário atualizado com os parâmetros:', this.jsonForm.value);
+    } else {
+      console.error('Nenhum dado JSON ou parâmetros disponíveis.');
+    }
   }
-}
-  /**
-   * Baixar ou visualizar o relatório baseado no diretório selecionado e ação.
-   * @param action Ação ('v' para visualizar, 'd' para download).
-   */
+
   baixarOuVisualizarRelatorio(action: string): void {
-    // Validação dos diretórios obrigatórios
     if (!this.selectedDirectory || !this.selectedSubDirectory) {
       alert('Tanto o diretório quanto o subdiretório são obrigatórios.');
       return;
     }
   
-    // Preparação de parâmetros adicionais
     const additionalParams: { [key: string]: any } = {};
     if (this.jsonForm && this.jsonForm.value) {
       Object.entries(this.jsonForm.value).forEach(([key, value]) => {
@@ -112,19 +109,30 @@ atualizarFormulario(): void {
         }
       });
     }
+  
     console.log('Parâmetros adicionais enviados para o backend:', additionalParams);
   
-    // Chamada ao serviço para gerar relatório
     this.relatorioService.gerarRelatorio(
       this.selectedDirectory,
       this.selectedSubDirectory,
-      action, // 'v' para visualizar
+      action,
       additionalParams
     ).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
         this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
-        this.displayPdfModal = true; // Exibe o modal
+  
+        if (action === 'v') {
+          this.displayPdfModal = true;
+        } else if (action === 'd') {
+          const a = document.createElement('a'); 
+          a.href = url;
+          a.download = `${this.selectedDirectory}_${this.selectedSubDirectory}.pdf`; 
+          document.body.appendChild(a); 
+          a.click(); 
+          document.body.removeChild(a); 
+          window.URL.revokeObjectURL(url); 
+        }
       },
       error: (error) => {
         console.error('Erro ao gerar o relatório:', error);
@@ -133,22 +141,28 @@ atualizarFormulario(): void {
     });
   }
 
-  
+  abrirMenuCompartilhar(event: Event): void {
+    const menu = document.querySelector('p-menu');
+    if (menu) {
+      (menu as any).toggle(event); // Posiciona o menu no local correto
+    }
+  }
 
-  /**
-   * Obtém as chaves dos parâmetros do JSON.
-   * @param parameters Parâmetros do JSON.
-   * @returns Lista de chaves.
-   */
+  compartilharEmail(): void {
+    if (!this.linkDoRelatorioGerado) {
+      alert('O relatório ainda não foi gerado para compartilhamento.');
+      return;
+    }
+    const assunto = encodeURIComponent('Relatório Gerado');
+    const corpo = encodeURIComponent(`Olá,%0D%0A%0D%0ACheck este relatório: ${this.linkDoRelatorioGerado}`);
+    window.open(`mailto:?subject=${assunto}&body=${corpo}`, '_blank');
+  }
+
   getParameterKeys(parameters: Parameters | undefined): string[] {
     return parameters ? Object.keys(parameters) : [];
   }
-  /**
-   * Gera um placeholder amigável para os parâmetros baseados na chave.
-   * @param key Chave do parâmetro.
-   * @returns Placeholder formatado.
-   */
+
   getPlaceholder(key: string): string {
     return key.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
-}
+  }
 }
