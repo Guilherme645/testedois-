@@ -4,12 +4,16 @@ import { RelatorioService } from 'src/service/relatorio.service'; // Serviço qu
 import { MenuItem, TreeNode } from 'primeng/api'; // Componentes do PrimeNG usados no menu e na árvore de pastas
 import { Dialog } from 'primeng/dialog'; // Componente do PrimeNG usado para exibir modais (janelas flutuantes)
 import { DirectoryService } from 'src/app/shared/directory.service';
+import { DialogService } from 'primeng/dynamicdialog';
+import { CriarPastaComponent } from '../criarPasta/criarPasta.component';
 
 @Component({
   selector: 'app-relatorio',
   templateUrl: './relatorio.component.html',
   styleUrls: ['./relatorio.component.css'],
+  providers: [DialogService], 
 })
+
 export class RelatorioComponent implements OnInit {
   @ViewChild('dialog') dialog: Dialog | undefined;
   directories: string[] = [];
@@ -22,7 +26,7 @@ export class RelatorioComponent implements OnInit {
   jsonResult: any = null;
   showJson: boolean = false;
   filesInDirectory: any[] = [];
-  hiddenFiles: any[] = []; // Armazena os arquivos ocultos
+  hiddenFiles: any[] = []; 
   selectedUploadFile: File | null = null;
   uploadError: string | null = null;
   errorMessage: string | null = null;
@@ -32,7 +36,9 @@ export class RelatorioComponent implements OnInit {
   selectedRowIndex: number | null = null;
   @Output() directorySelected = new EventEmitter<{ directory: string; subDirectory: string }>();
 
-  constructor(private relatorioService: RelatorioService, private directoryService: DirectoryService) {}
+  constructor(private relatorioService: RelatorioService,
+  private directoryService: DirectoryService,
+  private dialogService: DialogService,) {}
 
   ngOnInit() {
     this.inicializarMenu();
@@ -57,7 +63,7 @@ export class RelatorioComponent implements OnInit {
     this.relatorioService.obterConteudoDoDiretorio('').subscribe({
       next: (data) => {
         console.log('Dados carregados:', data);
-        this.files = this.transformarParaTreeNodes(data); // Atualiza a árvore com apenas pastas
+        this.files = this.transformarParaTreeNodes(data);
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage = 'Erro ao carregar diretórios.';
@@ -97,7 +103,6 @@ export class RelatorioComponent implements OnInit {
 
   aoSelecionarNo(event: any): void {
     const node = event.node;
-
     if (node) {
         // Se o nó tem um pai, trata como subdiretório
         if (node.parent) {
@@ -108,21 +113,17 @@ export class RelatorioComponent implements OnInit {
             this.selectedDirectory = node.data.nome; // Diretório principal
             this.selectedSubDirectory = null; // Sem subdiretório
         }
-
         console.log('Diretório selecionado:', this.selectedDirectory);
         console.log('Subdiretório selecionado:', this.selectedSubDirectory);
-
         // Emite o evento com os valores selecionados
         this.directoryService.emitDirectorySelected({
             directory: this.selectedDirectory,
             subDirectory:this.selectedSubDirectory = '',
         });
-
         console.log('Evento emitido pelo serviço:', {
             directory: this.selectedDirectory,
             subDirectory: this.selectedSubDirectory,
         });
-
         // Atualiza a lista de arquivos/subpastas
         this.relatorioService.listarConteudoDaPasta(this.selectedDirectory).subscribe({
             next: (arquivos: any[]) => {
@@ -138,26 +139,28 @@ export class RelatorioComponent implements OnInit {
     }
 }
 
-
   onDirectorySelected(event: { directory: string; subDirectory: string }): void {
     console.log('Diretório selecionado:', event.directory);
     console.log('Subdiretório selecionado:', event.subDirectory);
   }
 
-  criarNovaPasta() {
-    const folderName = prompt('Digite o nome da nova pasta:');
-    if (folderName) {
-      this.relatorioService.criarPasta(folderName).subscribe({
-        next: (response) => {
-          console.log('Nova pasta criada:', response);
-          this.carregarDiretorios();
-        },
-        error: (error) => {
-          console.error('Erro ao criar a pasta:', error);
-        },
-      });
-    }
+  criarNovaPasta(): void {
+    const ref = this.dialogService.open(CriarPastaComponent, {
+      header: 'Criar Nova Pasta',
+      width: '400px',
+    });
+
+    // Captura o nome da pasta criada ao fechar o modal
+    ref.onClose.subscribe((folderName: string) => {
+      if (folderName) {
+        console.log('Nova pasta criada:', folderName);
+        this.carregarDiretorios(); // Recarrega a lista de diretórios
+      } else {
+        console.log('Criação de pasta cancelada.');
+      }
+    });
   }
+  
 
   enviarArquivo(event: any) {
     const file = event.target.files[0];
@@ -220,16 +223,12 @@ export class RelatorioComponent implements OnInit {
   abrirDialogoRelatorio(file: any): void {
     const directory = this.selectedDirectory;
     const subDirectory = file.data.nome;
-  
     if (directory && subDirectory) {
-      // Emitir evento para o DirectoryService
       this.directoryService.emitDirectorySelected({
         directory,
         subDirectory,
       });
-  
       console.log('Evento emitido para o DirectoryService:', { directory, subDirectory });
-  
       // Exibir o modal
       this.displayModal = true;
     } else {

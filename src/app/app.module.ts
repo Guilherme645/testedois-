@@ -19,11 +19,8 @@ import { TooltipModule } from 'primeng/tooltip';
 // Components
 import { AppComponent } from './app.component';
 import { RelatorioComponent } from './components/relatorio/relatorio.component';
-import { MenuBarComponent } from './components/menu-bar/menu-bar.component';
-import { TreeComponent } from './components/tree/tree.component';
 import { GerarRelatorioComponent } from './components/GerarRelatorio/GerarRelatorio.component';
 import { CriarPastaComponent } from './components/criarPasta/criarPasta.component';
-import { PdfComponent } from './pdf/pdf.component';
 import { MenuModule } from 'primeng/menu';
 
 
@@ -32,10 +29,7 @@ import { MenuModule } from 'primeng/menu';
     AppComponent,
     RelatorioComponent,
     GerarRelatorioComponent,
-    MenuBarComponent,
-    TreeComponent,
     CriarPastaComponent,
-      PdfComponent
    ],
   imports: [
     BrowserModule,

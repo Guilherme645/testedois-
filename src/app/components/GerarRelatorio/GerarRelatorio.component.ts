@@ -4,26 +4,14 @@ import { RelatorioService } from 'src/service/relatorio.service';
 import { DirectoryService } from './../../shared/directory.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { HttpErrorResponse } from '@angular/common/http';
-
-interface Field {
-  name: string;
-  type: string;
-}
-
-interface Parameters {
-  [key: string]: Field;
-}
-
-interface JsonData {
-  parameters: Parameters;
-  fields: { [key: string]: Field };
-}
+import { Parameters } from 'src/app/model/parameters.model';
 
 @Component({
   selector: 'app-GerarRelatorio',
   templateUrl: './GerarRelatorio.component.html',
   styleUrls: ['./GerarRelatorio.component.css'],
 })
+
 export class GerarRelatorioComponent implements OnInit {
   jsonData: any | null = null; // JSON com dados do relatório
   jsonForm: FormGroup; // Formulário para parâmetros
@@ -144,7 +132,7 @@ export class GerarRelatorioComponent implements OnInit {
   abrirMenuCompartilhar(event: Event): void {
     const menu = document.querySelector('p-menu');
     if (menu) {
-      (menu as any).toggle(event); // Posiciona o menu no local correto
+      (menu as any).toggle(event);
     }
   }
 

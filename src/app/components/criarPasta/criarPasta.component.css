@@ -1,7 +1,48 @@
-/* criar-pasta.component.css */
-.dialog-footer {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-  }
-  
+.criar-nova-pasta-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+}
+
+.criar-nova-pasta-container input {
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  width: 100%;
+}
+
+.actions button {
+  flex: 1;
+  height: 3rem;
+  font-size: 1rem;
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.actions button.p-button-danger {
+  background-color:  #f54235 !important; /* Vermelho */
+}
+
+.actions button.p-button-danger:hover {
+  background-color: #b02a37 !important; /* Vermelho mais escuro */
+}
+
+.actions button.p-button-success {
+  background-color: #dc3545 !important; /* Vermelho */
+}
+
+.actions button.p-button-success:hover {
+  background-color: #b02a37 !important; /* Vermelho mais escuro */
+}

@@ -1,10 +1,22 @@
-<p-dialog header="Criar Nova Pasta" [(visible)]="display" [modal]="true" [style]="{'width': '300px'}">
-  <div>
-    <label for="folderName">Nome da Pasta:</label>
-    <input type="text" id="folderName" [(ngModel)]="folderName" pInputText placeholder="Digite o nome da pasta" />
+<div class="criar-nova-pasta-container">
+    <input
+    type="text"
+    pInputText
+    [(ngModel)]="folderName"
+    placeholder="Digite o nome da nova pasta"
+  />
+  <div class="actions">
+    <button
+      pButton
+      label="Criar"
+      class="p-button-danger"
+      (click)="criarPasta()">
+    </button>
+    <button
+      pButton
+      label="Cancelar"
+      class="p-button-danger"
+      (click)="cancelar()">
+    </button>
   </div>
-  <div class="dialog-footer">
-    <button type="button" pButton label="Criar" icon="pi pi-check" (click)="criarNovaPasta()"></button>
-    <button type="button" pButton label="Cancelar" icon="pi pi-times" (click)="closeDialog()"></button>
-  </div>
-</p-dialog>
+</div>

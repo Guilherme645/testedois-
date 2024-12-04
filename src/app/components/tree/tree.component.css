@@ -1,9 +1,0 @@
-:host ::ng-deep .p-tree .p-tree-container {
-    font-family: Arial, sans-serif;
-    font-size: 14px;
-  }
-  
-  :host ::ng-deep .p-tree .p-tree-container .p-treenode-content {
-    padding: 4px;
-  }
-  
