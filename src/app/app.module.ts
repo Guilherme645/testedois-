@@ -15,6 +15,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { DialogService, DynamicDialogModule } from 'primeng/dynamicdialog';
 import { TooltipModule } from 'primeng/tooltip';
+import { ContextMenuModule } from 'primeng/contextmenu';
 
 // Components
 import { AppComponent } from './app.component';
@@ -22,6 +23,9 @@ import { RelatorioComponent } from './components/relatorio/relatorio.component';
 import { GerarRelatorioComponent } from './components/GerarRelatorio/GerarRelatorio.component';
 import { CriarPastaComponent } from './components/criarPasta/criarPasta.component';
 import { MenuModule } from 'primeng/menu';
+import { DeletePastaComponent } from './components/deletePasta/deletePasta.component';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api'; // Importe o MessageService
 
 
 @NgModule({
@@ -30,6 +34,7 @@ import { MenuModule } from 'primeng/menu';
     RelatorioComponent,
     GerarRelatorioComponent,
     CriarPastaComponent,
+    DeletePastaComponent
    ],
   imports: [
     BrowserModule,
@@ -48,10 +53,12 @@ import { MenuModule } from 'primeng/menu';
     DynamicDialogModule,
     DialogModule,
     TooltipModule,
-    MenuModule 
+    MenuModule,
+    ContextMenuModule,
+    ToastModule 
  
   ],
-  providers: [DialogService],
+  providers: [DialogService, MessageService ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

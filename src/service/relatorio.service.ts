@@ -103,6 +103,15 @@ export class RelatorioService {
     );
   }
 
+  deletarPasta(nomePasta: string): Observable<any> {
+    const params = { path: nomePasta }; // Parâmetro de consulta com o nome da pasta
+    return this.http.delete(`${this.apiUrl}/explorer/delete-directory`, { params }).pipe(
+      catchError(this.tratarErro) // Tratar erros, se necessário
+    );
+  }
+  
+  
+
  /**
    * Gera um relatório PDF com base em um diretório específico.
    * @param directory Caminho do diretório.

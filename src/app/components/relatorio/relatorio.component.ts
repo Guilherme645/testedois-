@@ -6,6 +6,7 @@ import { Dialog } from 'primeng/dialog'; // Componente do PrimeNG usado para exi
 import { DirectoryService } from 'src/app/shared/directory.service';
 import { DialogService } from 'primeng/dynamicdialog';
 import { CriarPastaComponent } from '../criarPasta/criarPasta.component';
+import { DeletePastaComponent } from '../deletePasta/deletePasta.component';
 
 @Component({
   selector: 'app-relatorio',
@@ -35,6 +36,7 @@ export class RelatorioComponent implements OnInit {
   viewMode: string = 'list';
   selectedRowIndex: number | null = null;
   @Output() directorySelected = new EventEmitter<{ directory: string; subDirectory: string }>();
+  menuItems: MenuItem[] = []; // Itens do menu de contexto
 
   constructor(private relatorioService: RelatorioService,
   private directoryService: DirectoryService,
@@ -72,9 +74,28 @@ export class RelatorioComponent implements OnInit {
     });
   }
 
-  excluirPasta() {
-    // Método de exclusão de pastas (a ser implementado conforme necessário)
+  abrirMenuContexto(event: MouseEvent, contextoMenu: any): void {
+    contextoMenu.show(event);
+    event.preventDefault();
   }
+
+  excluirPasta(): void {
+    if (!this.selectedDirectory) {
+      alert('Nenhuma pasta foi selecionada para exclusão.');
+      return;
+    }
+      const ref = this.dialogService.open(DeletePastaComponent, {
+      header: 'Excluir Pasta',
+      width: '400px',
+      data: { folderName: this.selectedDirectory },
+    });
+      ref.onClose.subscribe((resultado: boolean) => {
+      if (resultado) {
+        this.carregarDiretorios(); 
+      }
+    });
+  }
+
 
   transformarParaTreeNodes(data: any[]): TreeNode[] {
     return data

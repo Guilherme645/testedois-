@@ -1,0 +1,19 @@
+<div class="delete-pasta-container">
+    <p>Tem certeza que deseja excluir a pasta "{{ folderName }}"?</p>
+    <div class="actions">
+      <button
+        pButton
+        label="Confirmar"
+        class="p-button-danger"
+        (click)="excluirPasta()"
+      ></button>
+      <button
+        pButton
+        label="Cancelar"
+        class="p-button-danger"
+        (click)="cancelar()"
+      ></button>
+      
+    </div>
+  </div>
+  

@@ -54,8 +54,27 @@
 }
 
 .col-md-8 {
-  margin-top: 20px;
-  margin-left: 20px;
+  flex: 1; 
+  overflow-y: auto; 
+    margin-top: 5px;
+    margin-left: 20px;
+
+}
+
+.p-table-wrapper {
+  height: 100%; 
+}
+
+.p-datatable-wrapper {
+  max-height: 100%; 
+}
+
+.icon-view {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em; 
+  justify-content: flex-start; 
+  height: 100%;
 }
 
 :host ::ng-deep .p-tree .node-content {

@@ -14,34 +14,43 @@
   <div class="row">
     <!-- Coluna com a árvore de pastas e arquivos -->
     <div class="col-md-4">
-      <p-tree [value]="files" selectionMode="single" [(selection)]="selectedFile"
-      (onNodeSelect)="aoSelecionarNo($event)"
-      class="w-full p-tree-custom"
-      [style]="{'max-height': '500px', 'overflow-y': 'auto', 'width': '300px'}">
+      <p-tree 
+        [value]="files" 
+        selectionMode="single" 
+        [(selection)]="selectedFile"
+        (onNodeSelect)="aoSelecionarNo($event)"
+        (contextmenu)="abrirMenuContexto($event, contextoMenu)"
+        [contextMenu]="true"
+        class="w-full p-tree-custom"
+        [style]="{'height': '500px', 'overflow-y': 'auto', 'width': '300px'}">
+        
+        <ng-template let-file pTemplate="default">
+          <!-- Contêiner flexível para ícone e nome -->
+          <div style="display: flex; align-items: center;">
+            <!-- Ícone para pastas principais -->
+            <ng-container *ngIf="file.data.tipo === 'Pasta de arquivos' && !file.parent">
+              <img src="../../../assets/file.png" alt="Ícone de Pasta" style="width: 1em; height: 1em; margin-right: 0.5em;">
+            </ng-container>
 
-<ng-template let-file pTemplate="default">
-  <!-- Contêiner flexível para ícone e nome -->
-  <div style="display: flex; align-items: center;">
-    <!-- Ícone para pastas principais -->
-    <ng-container *ngIf="file.data.tipo === 'Pasta de arquivos' && !file.parent">
-      <img src="../../../assets/file.png" alt="Ícone de Pasta" style="width: 1em; height: 1em; margin-right: 0.5em;">
-    </ng-container>
+            <!-- Ícone para subpastas -->
+            <ng-container *ngIf="file.data.tipo === 'Pasta de arquivos' && file.parent">
+              <img src="../../../assets/arqui6.png" alt="Ícone de Subpasta" style="width: 1em; height: 1em; margin-right: 0.5em;">
+            </ng-container>
 
-    <!-- Ícone para subpastas -->
-    <ng-container *ngIf="file.data.tipo === 'Pasta de arquivos' && file.parent">
-      <img src="../../../assets/arqui6.png" alt="Ícone de Subpasta" style="width: 1em; height: 1em; margin-right: 0.5em;">
-    </ng-container>
+            <!-- Ícone para arquivos -->
+            <ng-container *ngIf="file.data.tipo === 'Arquivo'">
+              <img src="../../../assets/arqui6.png" alt="Ícone de Arquivo" style="width: 1em; height: 1em; margin-right: 0.5em;">
+            </ng-container>
 
-    <!-- Ícone para arquivos -->
-    <ng-container *ngIf="file.data.tipo === 'Arquivo'">
-      <img src="../../../assets/arqui6.png" alt="Ícone de Arquivo" style="width: 1em; height: 1em; margin-right: 0.5em;">
-    </ng-container>
+            <!-- Nome do arquivo ou pasta -->
+            {{ file.data.nome }}
+          </div>
+        </ng-template>
+      </p-tree>
 
-    <!-- Nome do arquivo ou pasta -->
-    {{ file.data.nome }}
-  </div>
-</ng-template>
-</p-tree>
+      <!-- Menu de contexto -->
+    <p-contextMenu  #contextoMenu 
+    [model]="items" [global]="true" />
     </div>
 
     <!-- Coluna com a lista de arquivos na pasta selecionada -->
@@ -73,7 +82,7 @@
                 <ng-container *ngIf="file.data.tipo === 'Arquivo' && file.data.nome.includes('especifico')">
                   <img src="../../../assets/arqui.png" alt="Ícone Amarelo" style="width: 1em; height: 1em; margin-right: 0.5em;" />
                 </ng-container>
-                {{ file.data.nome }}
+                  {{ file.data.nome }}
               </div>
             </td>
             <td>{{ file.data.data_modificacao }}</td>
