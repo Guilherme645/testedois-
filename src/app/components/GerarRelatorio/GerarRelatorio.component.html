@@ -1,17 +1,16 @@
 <form [formGroup]="jsonForm" class="p-fluid form-container">
-  <div class="p-grid p-formgrid">
+  <div class="p-grid">
     <div class="p-col-6" *ngFor="let key of getParameterKeys(jsonData?.parameters)">
-      <!-- Oculta o parâmetro "IMAGE_PATH" -->
       <ng-container *ngIf="key !== ''">
-        <div class="p-field p-mb-3">
+        <div class="form-field">
           <ng-container *ngIf="key.toLowerCase().includes('data'); else defaultField">
             <p-calendar 
-              [formControlName]="key" 
-              dateFormat="mm/dd/yy" 
-              [showIcon]="true"
-              [appendTo]="'body'"
-              [placeholder]="getPlaceholder(key)">
-            </p-calendar>
+            [formControlName]="key" 
+            dateFormat="dd/mm/yy" 
+            [showIcon]="true" 
+            [appendTo]="'body'" 
+            [placeholder]="getPlaceholder(key)">
+          </p-calendar>
           </ng-container>
           <ng-template #defaultField>
             <input 
@@ -24,6 +23,7 @@
       </ng-container>
     </div>
   </div>
+
   
   <!-- Botões de ação -->
   <div class="buttons-container p-mt-3">

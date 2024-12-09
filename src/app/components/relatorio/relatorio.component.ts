@@ -1,8 +1,8 @@
 import { Component, OnInit, Output,ViewChild, EventEmitter } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { RelatorioService } from 'src/service/relatorio.service'; // Serviço que lida com dados de arquivos e diretórios
-import { MenuItem, TreeNode } from 'primeng/api'; // Componentes do PrimeNG usados no menu e na árvore de pastas
-import { Dialog } from 'primeng/dialog'; // Componente do PrimeNG usado para exibir modais (janelas flutuantes)
+import { RelatorioService } from 'src/service/relatorio.service';
+import { MenuItem, TreeNode } from 'primeng/api'; 
+import { Dialog } from 'primeng/dialog';
 import { DirectoryService } from 'src/app/shared/directory.service';
 import { DialogService } from 'primeng/dynamicdialog';
 import { CriarPastaComponent } from '../criarPasta/criarPasta.component';
@@ -256,4 +256,6 @@ export class RelatorioComponent implements OnInit {
       console.error('Diretório ou subdiretório não especificados.');
     }
   }
+
+  
 }
