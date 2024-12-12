@@ -22,7 +22,7 @@
         (contextmenu)="abrirMenuContexto($event, contextoMenu)"
         [contextMenu]="true"
         class="w-full p-tree-custom"
-        [style]="{'height': '500px', 'overflow-y': 'auto', 'width': '300px'}">
+        [style]="{'height': '650px', 'overflow-y': 'auto', 'width': '300px'}">
         
         <ng-template let-file pTemplate="default">
           <!-- Contêiner flexível para ícone e nome -->
@@ -59,7 +59,10 @@
       <p *ngIf="filesInDirectory.length === 0">Nenhum arquivo encontrado nesta pasta.</p>
 
       <!-- Visualização em Lista -->
-      <p-table *ngIf="viewMode === 'list' && filesInDirectory.length > 0" [value]="filesInDirectory" class="p-datatable-striped">
+      <p-table *ngIf="viewMode === 'list' && filesInDirectory.length > 0"
+         [value]="filesInDirectory" 
+         class="p-datatable-striped"
+         [style]="{'height': '650px', 'overflow-y': 'auto',}">
         <!-- Cabeçalho da tabela -->
         <ng-template pTemplate="header">
           <tr>
