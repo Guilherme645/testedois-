@@ -109,7 +109,20 @@ export class RelatorioService {
       catchError(this.tratarErro) // Tratar erros, se necessário
     );
   }
-  
+
+deletarRelatorio(nomeRelatorio: string, pastaPai: string): Observable<any> {
+  const params = { path: `${pastaPai}/${nomeRelatorio}` }; // Caminho completo do relatório
+  return this.http.delete(`${this.apiUrl}/explorer/delete-directory`, { params }).pipe(
+    catchError(this.tratarErro) // Tratar erros, se necessário
+  );
+}
+deletarArquivo(nomeArquivo: string): Observable<any> {
+  const params = { path: nomeArquivo }; // Query params para o endpoint
+  return this.http.delete(`${this.apiUrl}/explorer/delete-file`, { params }).pipe(
+    catchError(this.tratarErro) // Trata erros da requisição
+  );
+}
+
   
 
  /**

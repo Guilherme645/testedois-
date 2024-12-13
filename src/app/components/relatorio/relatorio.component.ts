@@ -79,6 +79,22 @@ export class RelatorioComponent implements OnInit {
     event.preventDefault();
   }
 
+  deletarRelatorio(nomeArquivo: string): void {
+  if (confirm(`Deseja realmente excluir o arquivo "${nomeArquivo}"?`)) {
+    const caminhoCompleto = `${this.selectedDirectory}/${nomeArquivo}`; // Diretório selecionado + nome do arquivo
+    this.relatorioService.deletarArquivo(caminhoCompleto).subscribe({
+      next: () => {
+        this.filesInDirectory = this.filesInDirectory.filter(file => file.nome !== nomeArquivo);
+        console.log(`Arquivo "${nomeArquivo}" excluído com sucesso.`);
+      },
+      error: (err) => {
+        console.error(`Erro ao excluir o arquivo "${nomeArquivo}":`, err);
+      }
+    });
+  }
+}
+
+
   excluirPasta(): void {
     if (!this.selectedDirectory) {
       alert('Nenhuma pasta foi selecionada para exclusão.');

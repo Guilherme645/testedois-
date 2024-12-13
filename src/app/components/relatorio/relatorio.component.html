@@ -56,7 +56,7 @@
     <!-- Coluna com a lista de arquivos na pasta selecionada -->
     <div class="col-md-8">
       <!-- Mensagem se não houver arquivos na pasta -->
-      <p *ngIf="filesInDirectory.length === 0">Nenhum arquivo encontrado nesta pasta.</p>
+      <p *ngIf="filesInDirectory.length === 0">Selcione uma pasta.</p>
 
       <!-- Visualização em Lista -->
       <p-table *ngIf="viewMode === 'list' && filesInDirectory.length > 0"
@@ -69,6 +69,7 @@
             <th pSortableColumn="nome">Nome <p-sortIcon field="nome"></p-sortIcon></th>
             <th pSortableColumn="data_modificacao">Data de Modificação <p-sortIcon field="data_modificacao"></p-sortIcon></th>
             <th pSortableColumn="tipo">Tipo <p-sortIcon field="tipo"></p-sortIcon></th>
+            <th pSortableColumn="funcao">Função <p-sortIcon field="funcao"></p-sortIcon></th>
           </tr>
         </ng-template>
 
@@ -90,6 +91,17 @@
             </td>
             <td>{{ file.data.data_modificacao }}</td>
             <td>{{ file.data.tipo }}</td>
+            <td>
+              <button 
+                pButton 
+                type="button" 
+                icon="pi pi-trash" 
+                class="p-button-rounded p-button-danger"
+                title="Excluir Arquivo"
+                (click)="deletarRelatorio(file.data.nome)">
+              </button>
+            </td>            
+
           </tr>
         </ng-template>
       </p-table>

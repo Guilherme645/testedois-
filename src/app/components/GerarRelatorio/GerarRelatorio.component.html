@@ -25,8 +25,9 @@
   </div>
 
   
-  <!-- Botões de ação -->
+  <!-- Botões de ação --> 
   <div class="buttons-container p-mt-3">
+   
     <button 
       pButton 
       type="button" 
@@ -62,7 +63,9 @@
     [style]="{width: '100vw', height: '100vh'}"
     [baseZIndex]="10000"
     [closable]="true"
-    appendTo="body">
+    appendTo="body"
+    pi pi-trash>
+    <i class="pi pi-check">sd</i>
     <ng-container *ngIf="pdfUrl; else noPdfMessage">
       <iframe
         [src]="pdfUrl"

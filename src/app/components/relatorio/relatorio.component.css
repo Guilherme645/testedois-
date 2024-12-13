@@ -1,7 +1,7 @@
 .container {
   margin: auto;
   width: 100%;
-  height: 100vh; /* Faz a altura da container ocupar toda a janela */
+  height: 100vh; 
   padding: 20px;
   background-color: #fff;
   border-radius: 8px;
@@ -101,6 +101,13 @@
   background-color: red; 
   color: white; 
 }
+
+:host ::ng-deep {
+  .p-treenode:focus {
+    border-color: #f54235;
+}
+}
+
 
 :host ::ng-deep .p-treenode-content.selected {
   background-color: red !important; /* Cor de fundo ao selecionar */
