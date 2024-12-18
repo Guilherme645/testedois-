@@ -7,6 +7,7 @@ import { DirectoryService } from 'src/app/shared/directory.service';
 import { DialogService } from 'primeng/dynamicdialog';
 import { CriarPastaComponent } from '../criarPasta/criarPasta.component';
 import { DeletePastaComponent } from '../deletePasta/deletePasta.component';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-relatorio',
@@ -37,10 +38,14 @@ export class RelatorioComponent implements OnInit {
   selectedRowIndex: number | null = null;
   @Output() directorySelected = new EventEmitter<{ directory: string; subDirectory: string }>();
   menuItems: MenuItem[] = []; // Itens do menu de contexto
-
+  tempoInicioClique: any = null; // Armazena o tempo do clique
+  duracaoCliqueLongo = 2000; // 2 segundos
+  
   constructor(private relatorioService: RelatorioService,
   private directoryService: DirectoryService,
-  private dialogService: DialogService,) {}
+  private dialogService: DialogService,
+  private messageService: MessageService
+) {}
 
   ngOnInit() {
     this.inicializarMenu();
@@ -52,6 +57,7 @@ export class RelatorioComponent implements OnInit {
       { label: 'Nova Pasta', icon: 'pi pi-plus', command: () => this.criarNovaPasta() },
       { label: 'Excluir', icon: 'pi pi-times', command: () => this.excluirPasta() },
       { label: 'Carregar novo relatório (ZIP)', icon: 'pi pi-file-plus', command: () => this.dispararEntradaArquivo() },
+      { label: 'Mover', icon: 'pi pi-arrow-right', command: () => this.moverArquivoOuPasta(this.files) },
       { label: 'Lista', icon: 'pi pi-list', command: () => this.toggleView('list') },
       { label: 'Ícones', icon: 'pi pi-th-large', command: () => this.toggleView('icons') },
     ];
@@ -273,5 +279,39 @@ export class RelatorioComponent implements OnInit {
     }
   }
 
+  moverArquivoOuPasta(file: any): void {
+    const sourcePath = `${this.selectedDirectory}/${file.data.nome}`;
+    const targetPath = prompt(`Mover "${file.data.nome}" para qual caminho de destino?`);
   
+    if (targetPath) {
+      this.relatorioService.moverArquivoOuDiretorio(sourcePath, targetPath).subscribe({
+        next: () => {
+          console.log(`Movido com sucesso: ${sourcePath} -> ${targetPath}`);
+          alert(`Movido com sucesso para: ${targetPath}`);
+          this.carregarDiretorios(); // Recarregar diretórios
+        },
+        error: (error) => {
+          console.error('Erro ao mover o item:', error);
+        },
+      });
+    } else {
+      console.log('Ação de mover cancelada.');
+    }
+  }
+
+iniciarCliqueLongo(file: any): void {
+  // Inicia o temporizador
+  this.tempoInicioClique = setTimeout(() => {
+    this.moverArquivoOuPasta(file); // Chama a lógica de mover após 2 segundos
+  }, this.duracaoCliqueLongo);
+}
+
+finalizarCliqueLongo(): void {
+  // Cancela o temporizador caso o usuário solte o clique antes dos 2 segundos
+  if (this.tempoInicioClique) {
+    clearTimeout(this.tempoInicioClique);
+    this.tempoInicioClique = null;
+  }
+}
+
 }

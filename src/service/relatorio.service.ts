@@ -22,7 +22,7 @@ export class RelatorioService {
     formData.append('file', arquivo);
     formData.append('path', caminhoDiretorio);
 
-    return this.http.post(`${this.apiUrl}/report/upload`, formData).pipe(
+    return this.http.post(`${this.apiUrl}/files/upload`, formData).pipe(
       catchError(this.tratarErro)
     );
   }
@@ -35,7 +35,7 @@ export class RelatorioService {
     const formData = new FormData();
     formData.append('file', arquivo);
 
-    return this.http.post(`${this.apiUrl}/report/upload`, formData, { responseType: 'text' }).pipe(
+    return this.http.post(`${this.apiUrl}/files/upload`, formData, { responseType: 'text' }).pipe(
       catchError(this.tratarErro)
     );
   }
@@ -123,8 +123,6 @@ deletarArquivo(nomeArquivo: string): Observable<any> {
   );
 }
 
-  
-
  /**
    * Gera um relatório PDF com base em um diretório específico.
    * @param directory Caminho do diretório.
@@ -171,4 +169,12 @@ deletarArquivo(nomeArquivo: string): Observable<any> {
     console.error(mensagemErro);
     return throwError(mensagemErro);
   }
+
+  moverArquivoOuDiretorio(sourcePath: string, targetPath: string): Observable<any> {
+    const requestBody = { sourcePath, targetPath };
+    return this.http.post(`${this.apiUrl}/files/move`, requestBody).pipe(
+      catchError(this.tratarErro)
+    );
+  }
+  
 }

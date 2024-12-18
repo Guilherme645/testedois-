@@ -75,7 +75,11 @@
 
         <!-- Corpo da tabela -->
         <ng-template pTemplate="body" let-file>
-          <tr (click)="abrirDialogoRelatorio(file)">
+          
+          <tr (mousedown)="iniciarCliqueLongo(file)" 
+          (mouseup)="finalizarCliqueLongo()"
+          (mouseleave)="finalizarCliqueLongo()"
+          (click)="abrirDialogoRelatorio(file)">
             <td>
               <!-- Ícone e nome para pastas -->
               <div style="display: flex; align-items: center;">
