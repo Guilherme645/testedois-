@@ -15,82 +15,81 @@
     <!-- Coluna com a árvore de pastas e arquivos -->
     <div class="col-md-4">
       <p-tree 
-        [value]="files" 
-        selectionMode="single" 
+        [value]="files"
+        selectionMode="single"
         [(selection)]="selectedFile"
         (onNodeSelect)="aoSelecionarNo($event)"
         (contextmenu)="abrirMenuContexto($event, contextoMenu)"
-        [contextMenu]="true"
         class="w-full p-tree-custom"
         [style]="{'height': '650px', 'overflow-y': 'auto', 'width': '300px'}">
         
         <ng-template let-file pTemplate="default">
-          <!-- Contêiner flexível para ícone e nome -->
-          <div style="display: flex; align-items: center;">
-            <!-- Ícone para pastas principais -->
-            <ng-container *ngIf="file.data.tipo === 'Pasta de arquivos' && !file.parent">
-              <img src="../../../assets/file.png" alt="Ícone de Pasta" style="width: 1em; height: 1em; margin-right: 0.5em;">
-            </ng-container>
-
-            <!-- Ícone para subpastas -->
-            <ng-container *ngIf="file.data.tipo === 'Pasta de arquivos' && file.parent">
-              <img src="../../../assets/arqui6.png" alt="Ícone de Subpasta" style="width: 1em; height: 1em; margin-right: 0.5em;">
-            </ng-container>
-
-            <!-- Ícone para arquivos -->
-            <ng-container *ngIf="file.data.tipo === 'Arquivo'">
-              <img src="../../../assets/arqui6.png" alt="Ícone de Arquivo" style="width: 1em; height: 1em; margin-right: 0.5em;">
-            </ng-container>
-
-            <!-- Nome do arquivo ou pasta -->
-            {{ file.data.nome }}
+          <div 
+            class="tree-item"
+            draggable="true"
+            (dragstart)="iniciarArrastar(file)"
+            (dragover)="permitirSoltar($event)"
+            (drop)="finalizarSoltar($event, file)">
+            <div style="display: flex; align-items: center;">
+              <!-- Ícone para pastas principais -->
+              <ng-container *ngIf="file.data.tipo === 'Pasta de arquivos' && !file.parent">
+                <img src="../../../assets/file.png" alt="Ícone de Pasta" style="width: 1em; height: 1em; margin-right: 0.5em;">
+              </ng-container>
+  
+              <!-- Ícone para subpastas -->
+              <ng-container *ngIf="file.data.tipo === 'Pasta de arquivos' && file.parent">
+                <img src="../../../assets/arqui6.png" alt="Ícone de Subpasta" style="width: 1em; height: 1em; margin-right: 0.5em;">
+              </ng-container>
+  
+              <!-- Ícone para arquivos -->
+              <ng-container *ngIf="file.data.tipo === 'Arquivo'">
+                <img src="../../../assets/arqui6.png" alt="Ícone de Arquivo" style="width: 1em; height: 1em; margin-right: 0.5em;">
+              </ng-container>
+  
+              <!-- Nome do arquivo ou pasta -->
+              {{ file.data.nome }}
+            </div>
           </div>
         </ng-template>
       </p-tree>
 
       <!-- Menu de contexto -->
-    <p-contextMenu  #contextoMenu 
-    [model]="items" [global]="true" />
+      <p-contextMenu #contextoMenu [model]="items" [global]="true" />
     </div>
 
     <!-- Coluna com a lista de arquivos na pasta selecionada -->
     <div class="col-md-8">
-      <!-- Mensagem se não houver arquivos na pasta -->
-      <p *ngIf="filesInDirectory.length === 0">Selcione uma pasta.</p>
+      <p *ngIf="filesInDirectory.length === 0">Selecione uma pasta.</p>
 
       <!-- Visualização em Lista -->
       <p-table *ngIf="viewMode === 'list' && filesInDirectory.length > 0"
-         [value]="filesInDirectory" 
-         class="p-datatable-striped"
-         [style]="{'height': '650px', 'overflow-y': 'auto',}">
-        <!-- Cabeçalho da tabela -->
+        [value]="filesInDirectory" 
+        class="p-datatable-striped"
+        [style]="{'height': '650px', 'overflow-y': 'auto'}">
+        
         <ng-template pTemplate="header">
           <tr>
             <th pSortableColumn="nome">Nome <p-sortIcon field="nome"></p-sortIcon></th>
             <th pSortableColumn="data_modificacao">Data de Modificação <p-sortIcon field="data_modificacao"></p-sortIcon></th>
             <th pSortableColumn="tipo">Tipo <p-sortIcon field="tipo"></p-sortIcon></th>
-            <th pSortableColumn="funcao">Função <p-sortIcon field="funcao"></p-sortIcon></th>
+            <th>Função</th>
           </tr>
         </ng-template>
 
-        <!-- Corpo da tabela -->
         <ng-template pTemplate="body" let-file>
-          
-          <tr (mousedown)="iniciarCliqueLongo(file)" 
-          (mouseup)="finalizarCliqueLongo()"
-          (mouseleave)="finalizarCliqueLongo()"
-          (click)="abrirDialogoRelatorio(file)">
+          <tr 
+            draggable="true"
+            (dragstart)="iniciarArrastar(file)"
+            (dragover)="permitirSoltar($event)"
+            (drop)="finalizarSoltar($event, file)"
+            (click)="abrirDialogoRelatorio(file)">
             <td>
-              <!-- Ícone e nome para pastas -->
               <div style="display: flex; align-items: center;">
-                <ng-container *ngIf="file.data.tipo === 'Pasta de arquivos'">
-                  <img src="../../../assets/arqui6.png" alt="Ícone Amarelo" style="width: 1em; height: 1em; margin-right: 0.5em;" />
-                </ng-container>
-                <!-- Ícone e nome para arquivos específicos -->
-                <ng-container *ngIf="file.data.tipo === 'Arquivo' && file.data.nome.includes('especifico')">
-                  <img src="../../../assets/arqui.png" alt="Ícone Amarelo" style="width: 1em; height: 1em; margin-right: 0.5em;" />
-                </ng-container>
-                  {{ file.data.nome }}
+                <img 
+                  [src]="file.data.tipo === 'Pasta de arquivos' ? '../../../assets/arqui6.png' : '../../../assets/arqui.png'" 
+                  alt="Ícone" 
+                  style="width: 1em; height: 1em; margin-right: 0.5em;">
+                {{ file.data.nome }}
               </div>
             </td>
             <td>{{ file.data.data_modificacao }}</td>
@@ -104,16 +103,27 @@
                 title="Excluir Arquivo"
                 (click)="deletarRelatorio(file.data.nome)">
               </button>
-            </td>            
-
+            </td>
           </tr>
         </ng-template>
       </p-table>
 
       <!-- Visualização em Ícones -->
       <div *ngIf="viewMode === 'icons' && filesInDirectory.length > 0" class="icon-view">
-        <div class="file-icon" *ngFor="let file of filesInDirectory" (click)="abrirDialogoRelatorio(file)" pTooltip="{{ 'Nome: ' + file.data.nome + '\nData de Modificação: ' + file.data.data_modificacao + '\nTipo: ' + file.data.tipo }}" tooltipPosition="top">
-          <img [src]="file.data.tipo === 'Pasta de arquivos' ? '../../../assets/arqui6.png' : '../../../assets/arqui.png'" alt="Ícone" style="width: 3em; height: 3em; margin-bottom: 0.5em;" />
+        <div 
+          class="file-icon" 
+          *ngFor="let file of filesInDirectory"
+          draggable="true"
+          (dragstart)="iniciarArrastar(file)"
+          (dragover)="permitirSoltar($event)"
+          (drop)="finalizarSoltar($event, file)"
+          (click)="abrirDialogoRelatorio(file)"
+          pTooltip="{{ 'Nome: ' + file.data.nome + '\nData de Modificação: ' + file.data.data_modificacao + '\nTipo: ' + file.data.tipo }}"
+          tooltipPosition="top">
+          <img 
+            [src]="file.data.tipo === 'Pasta de arquivos' ? '../../../assets/arqui6.png' : '../../../assets/arqui.png'" 
+            alt="Ícone" 
+            style="width: 3em; height: 3em; margin-bottom: 0.5em;">
           <p>{{ file.data.nome }}</p>
         </div>
       </div>

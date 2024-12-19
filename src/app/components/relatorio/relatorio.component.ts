@@ -38,9 +38,8 @@ export class RelatorioComponent implements OnInit {
   selectedRowIndex: number | null = null;
   @Output() directorySelected = new EventEmitter<{ directory: string; subDirectory: string }>();
   menuItems: MenuItem[] = []; // Itens do menu de contexto
-  tempoInicioClique: any = null; // Armazena o tempo do clique
-  duracaoCliqueLongo = 2000; // 2 segundos
-  
+  draggedFile: any = null;
+
   constructor(private relatorioService: RelatorioService,
   private directoryService: DirectoryService,
   private dialogService: DialogService,
@@ -57,7 +56,6 @@ export class RelatorioComponent implements OnInit {
       { label: 'Nova Pasta', icon: 'pi pi-plus', command: () => this.criarNovaPasta() },
       { label: 'Excluir', icon: 'pi pi-times', command: () => this.excluirPasta() },
       { label: 'Carregar novo relatório (ZIP)', icon: 'pi pi-file-plus', command: () => this.dispararEntradaArquivo() },
-      { label: 'Mover', icon: 'pi pi-arrow-right', command: () => this.moverArquivoOuPasta(this.files) },
       { label: 'Lista', icon: 'pi pi-list', command: () => this.toggleView('list') },
       { label: 'Ícones', icon: 'pi pi-th-large', command: () => this.toggleView('icons') },
     ];
@@ -299,19 +297,56 @@ export class RelatorioComponent implements OnInit {
     }
   }
 
-iniciarCliqueLongo(file: any): void {
-  // Inicia o temporizador
-  this.tempoInicioClique = setTimeout(() => {
-    this.moverArquivoOuPasta(file); // Chama a lógica de mover após 2 segundos
-  }, this.duracaoCliqueLongo);
-}
-
-finalizarCliqueLongo(): void {
-  // Cancela o temporizador caso o usuário solte o clique antes dos 2 segundos
-  if (this.tempoInicioClique) {
-    clearTimeout(this.tempoInicioClique);
-    this.tempoInicioClique = null;
+  iniciarArrastar(file: any): void {
+    console.log('Iniciando arrastar:', file);
+    this.draggedFile = file; // Armazena o item arrastado
   }
+  
+  permitirSoltar(event: DragEvent): void {
+    event.preventDefault(); // Necessário para permitir o "drop"
+    event.dataTransfer!.dropEffect = 'move'; // Muda o cursor para "mover"
+  }
+  
+  finalizarSoltar(event: DragEvent, targetNode: any): void {
+    event.preventDefault();
+  
+    if (!this.draggedFile) {
+      console.error('Erro: Nenhum item foi arrastado.');
+      return;
+    }
+  
+    // Caminho de origem
+    const sourcePath = `${this.selectedDirectory}/${this.draggedFile.data.nome}`;
+let targetPath = `${targetNode.data.nome}/${this.draggedFile.data.nome}`;
+
+// Evita duplicações
+if (targetPath.includes(this.draggedFile.data.nome)) {
+    targetPath = targetNode.data.nome; // Usa apenas o destino correto
 }
+  
+    // Verifica se o destino é válido
+    if (sourcePath === targetPath) {
+      console.log('O item não pode ser movido para ele mesmo.');
+      return;
+    }
+  
+    console.log(`Movendo de: ${sourcePath} para: ${targetPath}`);
+  
+    // Chama o serviço para mover o item
+    this.relatorioService.moverArquivoOuDiretorio(sourcePath, targetPath).subscribe({
+      next: () => {
+        console.log(`Movido com sucesso: ${sourcePath} -> ${targetPath}`);
+        alert(`Movido com sucesso para: ${targetPath}`);
+        this.carregarDiretorios(); // Atualiza a exibição dos diretórios
+      },
+      error: (error) => {
+        console.error('Erro ao mover o item:', error);
+      },
+    });
+  
+    // Limpa o item arrastado
+    this.draggedFile = null;
+  }
+  
 
 }
